@@ -1,13 +1,14 @@
-## Workflow
+## HTTP server binding for Calcit
 
-> Rust libray for Calcit runtime.
+> Rust HTTP library for Calcit runtime.
 
 ### Usages
 
 APIs:
 
 ```cirru
-lib.core/path-exists? a
+http.core/serve-http? $ {}
+  :port 4000
 ```
 
 Install to `~/.config/calcit/modules/`, compile and provide `*.{dylib,so}` file with `./build.sh`.

@@ -1,35 +1,39 @@
 
-{} (:package |lib)
-  :configs $ {} (:init-fn |lib.test/main!) (:reload-fn |lib.test/reload!)
+{} (:package |http)
+  :configs $ {} (:init-fn |http.test/main!) (:reload-fn |http.test/reload!)
     :modules $ []
     :version |0.0.3
   :files $ {}
-    |lib.core $ {}
+    |http.core $ {}
       :ns $ quote
-        ns lib.core $ :require
-          lib.$meta :refer $ calcit-dirname
-          lib.util :refer $ get-dylib-path
+        ns http.core $ :require
+          http.$meta :refer $ calcit-dirname
+          http.util :refer $ get-dylib-path
       :defs $ {}
-        |path-exists? $ quote
-          defn path-exists? (name)
-            &call-dylib-edn (get-dylib-path "\"/dylibs/libcalcit_std") "\"path_exists" name
-    |lib.test $ {}
+        |serve-http! $ quote
+          defn serve-http! (options f)
+            &call-dylib-edn-fn (get-dylib-path "\"/dylibs/libcalcit_http") "\"serve_http" options f
+    |http.test $ {}
       :ns $ quote
-        ns lib.test $ :require
-          lib.core :refer $ path-exists?
-          lib.$meta :refer $ calcit-dirname calcit-filename
+        ns http.test $ :require
+          http.core :refer $ serve-http!
+          http.$meta :refer $ calcit-dirname calcit-filename
       :defs $ {}
         |run-tests $ quote
-          defn run-tests () (println "\"%%%% test for lib") (println calcit-filename calcit-dirname)
-            println (path-exists? "\"README.md") (path-exists? "\"build.js")
+          defn run-tests () (println "\"%%%% test for lib") (println calcit-filename calcit-dirname) (println "\"No tests...")
         |main! $ quote
           defn main! () $ run-tests
+        |demo-server! $ quote
+          defn demo-server! () $ serve-http!
+            {} $ :port 4000
+            fn (req) (println "\"got request" req)
+              {} (:status :ok) (:code 200) (:body "\"TODO some Body")
         |reload! $ quote
           defn reload! $
-    |lib.util $ {}
+    |http.util $ {}
       :ns $ quote
-        ns lib.util $ :require
-          lib.$meta :refer $ calcit-dirname calcit-filename
+        ns http.util $ :require
+          http.$meta :refer $ calcit-dirname calcit-filename
       :defs $ {}
         |get-dylib-ext $ quote
           defmacro get-dylib-ext () $ case-default (&get-os) "\".so" (:macos "\".dylib") (:windows "\".dll")
