@@ -1,9 +1,10 @@
 use cirru_edn::Edn;
 use std::collections::HashMap;
+use std::sync::Arc;
 use tiny_http::{Response, Server};
 
 #[no_mangle]
-pub fn serve_http(args: Vec<Edn>, handler: Box<dyn Fn(Edn) -> Edn>) -> Result<Edn, String> {
+pub fn serve_http(args: Vec<Edn>, handler: Arc<dyn Fn(Edn) -> Edn>) -> Result<Edn, String> {
   println!("TODO args: {:?}", args);
   let server = Server::http("0.0.0.0:8000").unwrap();
 
