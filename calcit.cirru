@@ -101,6 +101,16 @@
               |v $ {} (:type :expr) (:by |u0) (:at 1633150002066)
                 :data $ {}
                   |T $ {} (:type :leaf) (:by |u0) (:at 1633150004371) (:text |run-tests)
+          |mid-f $ {} (:type :expr) (:by |u0) (:at 1634927786817)
+            :data $ {}
+              |T $ {} (:type :leaf) (:by |u0) (:at 1634927788771) (:text |defn)
+              |j $ {} (:type :leaf) (:by |u0) (:at 1634927786817) (:text |mid-f)
+              |r $ {} (:type :expr) (:by |u0) (:at 1634927786817)
+                :data $ {}
+              |v $ {} (:type :expr) (:by |u0) (:at 1634927789650)
+                :data $ {}
+                  |T $ {} (:type :leaf) (:by |u0) (:at 1634927790523) (:text |println)
+                  |j $ {} (:type :leaf) (:by |u0) (:at 1634927804262) (:text "|\"fff222")
           |demo-server! $ {} (:type :expr) (:by |u0) (:at 1634925851472)
             :data $ {}
               |T $ {} (:type :leaf) (:by |u0) (:at 1634925851472) (:text |defn)
@@ -126,8 +136,11 @@
                       |n $ {} (:type :expr) (:by |u0) (:at 1634926576882)
                         :data $ {}
                           |T $ {} (:type :leaf) (:by |u0) (:at 1634926579047) (:text |println)
-                          |j $ {} (:type :leaf) (:by |u0) (:at 1634926584394) (:text "|\"got request")
+                          |j $ {} (:type :leaf) (:by |u0) (:at 1634927753197) (:text "|\"got request2")
                           |r $ {} (:type :leaf) (:by |u0) (:at 1634926607010) (:text |req)
+                      |p $ {} (:type :expr) (:by |u0) (:at 1634927780305)
+                        :data $ {}
+                          |T $ {} (:type :leaf) (:by |u0) (:at 1634927786365) (:text |mid-f)
                       |r $ {} (:type :expr) (:by |u0) (:at 1634925879592)
                         :data $ {}
                           |T $ {} (:type :leaf) (:by |u0) (:at 1634925880124) (:text |{})

@@ -23,10 +23,12 @@
           defn run-tests () (println "\"%%%% test for lib") (println calcit-filename calcit-dirname) (println "\"No tests...")
         |main! $ quote
           defn main! () $ run-tests
+        |mid-f $ quote
+          defn mid-f () $ println "\"fff222"
         |demo-server! $ quote
           defn demo-server! () $ serve-http!
             {} $ :port 4000
-            fn (req) (println "\"got request" req)
+            fn (req) (println "\"got request2" req) (mid-f)
               {} (:status :ok) (:code 200) (:body "\"TODO some Body")
         |reload! $ quote
           defn reload! $
