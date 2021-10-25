@@ -4,7 +4,10 @@ use std::sync::Arc;
 use tiny_http::{Response, Server};
 
 #[no_mangle]
-pub fn serve_http(args: Vec<Edn>, handler: Arc<dyn Fn(Edn) -> Edn>) -> Result<Edn, String> {
+pub fn serve_http(
+  args: Vec<Edn>,
+  handler: Arc<dyn Fn(Edn) -> Result<Edn, String>>,
+) -> Result<Edn, String> {
   println!("TODO args: {:?}", args);
   let server = Server::http("0.0.0.0:8000").unwrap();
 
@@ -26,7 +29,7 @@ pub fn serve_http(args: Vec<Edn>, handler: Arc<dyn Fn(Edn) -> Edn>) -> Result<Ed
       Edn::Str(request.url().to_string()),
     );
     let info = Edn::Map(m);
-    let result = handler(info);
+    let result = handler(info)?;
 
     let response = Response::from_string(result.to_string());
     request.respond(response).map_err(|x| x.to_string())?;
