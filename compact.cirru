@@ -2,7 +2,7 @@
 {} (:package |http)
   :configs $ {} (:init-fn |http.test/main!) (:reload-fn |http.test/reload!)
     :modules $ []
-    :version |0.0.3
+    :version |0.0.4
   :files $ {}
     |http.core $ {}
       :ns $ quote
@@ -19,19 +19,25 @@
           http.core :refer $ serve-http!
           http.$meta :refer $ calcit-dirname calcit-filename
       :defs $ {}
+        |mid-call $ quote
+          defn mid-call () $ println "\"Calling internal function"
+        |on-request $ quote
+          defn on-request (req) (; println "\"Handling request:" req)
+            println $ :url req
+            ; mid-call
+            {} (:status :ok) (:code 200)
+              :headers $ {} (:content-type "\"application/json")
+              :body $ format-cirru-edn req
         |run-tests $ quote
           defn run-tests () (println "\"%%%% test for lib") (println calcit-filename calcit-dirname) (println "\"No tests...")
         |main! $ quote
           defn main! () $ run-tests
-        |mid-f $ quote
-          defn mid-f () $ println "\"fff222"
         |demo-server! $ quote
           defn demo-server! () $ serve-http!
             {} $ :port 4000
-            fn (req) (println "\"got request2" req) (mid-f)
-              {} (:status :ok) (:code 200) (:body "\"TODO some Body")
+            fn (req) (on-request req)
         |reload! $ quote
-          defn reload! $
+          defn reload! () $ println "\"Reload"
     |http.util $ {}
       :ns $ quote
         ns http.util $ :require

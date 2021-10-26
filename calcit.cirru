@@ -73,6 +73,68 @@
                         |j $ {} (:type :leaf) (:by |u0) (:at 1634703953240) (:text |calcit-filename)
         :configs $ {}
         :defs $ {}
+          |mid-call $ {} (:type :expr) (:by |u0) (:at 1634927786817)
+            :data $ {}
+              |T $ {} (:type :leaf) (:by |u0) (:at 1634927788771) (:text |defn)
+              |j $ {} (:type :leaf) (:by |u0) (:at 1635228168857) (:text |mid-call)
+              |r $ {} (:type :expr) (:by |u0) (:at 1634927786817)
+                :data $ {}
+              |v $ {} (:type :expr) (:by |u0) (:at 1634927789650)
+                :data $ {}
+                  |T $ {} (:type :leaf) (:by |u0) (:at 1634927790523) (:text |println)
+                  |j $ {} (:type :leaf) (:by |u0) (:at 1635228176331) (:text "|\"Calling internal function")
+          |on-request $ {} (:type :expr) (:by |u0) (:at 1635234356153)
+            :data $ {}
+              |sT $ {} (:type :expr) (:by |u0) (:at 1635234439960)
+                :data $ {}
+                  |T $ {} (:type :leaf) (:by |u0) (:at 1635234441166) (:text |println)
+                  |j $ {} (:type :expr) (:by |u0) (:at 1635234441792)
+                    :data $ {}
+                      |T $ {} (:type :leaf) (:by |u0) (:at 1635234442744) (:text |:url)
+                      |j $ {} (:type :leaf) (:by |u0) (:at 1635234443443) (:text |req)
+              |T $ {} (:type :leaf) (:by |u0) (:at 1635234356153) (:text |defn)
+              |j $ {} (:type :leaf) (:by |u0) (:at 1635234356153) (:text |on-request)
+              |r $ {} (:type :expr) (:by |u0) (:at 1635234356153)
+                :data $ {}
+                  |T $ {} (:type :leaf) (:by |u0) (:at 1635234356153) (:text |req)
+              |s $ {} (:type :expr) (:by |u0) (:at 1635234372099)
+                :data $ {}
+                  |L $ {} (:type :leaf) (:by |u0) (:at 1635234436278) (:text |;)
+                  |j $ {} (:type :leaf) (:by |u0) (:at 1635234372099) (:text |println)
+                  |r $ {} (:type :leaf) (:by |u0) (:at 1635234372099) (:text "|\"Handling request:")
+                  |v $ {} (:type :leaf) (:by |u0) (:at 1635234372099) (:text |req)
+              |t $ {} (:type :expr) (:by |u0) (:at 1635234365546)
+                :data $ {}
+                  |T $ {} (:type :leaf) (:by |u0) (:at 1635234365546) (:text |;)
+                  |j $ {} (:type :leaf) (:by |u0) (:at 1635234365546) (:text |mid-call)
+              |v $ {} (:type :expr) (:by |u0) (:at 1635234357410)
+                :data $ {}
+                  |T $ {} (:type :leaf) (:by |u0) (:at 1635234357410) (:text |{})
+                  |j $ {} (:type :expr) (:by |u0) (:at 1635234357410)
+                    :data $ {}
+                      |T $ {} (:type :leaf) (:by |u0) (:at 1635234357410) (:text |:status)
+                      |j $ {} (:type :leaf) (:by |u0) (:at 1635234357410) (:text |:ok)
+                  |r $ {} (:type :expr) (:by |u0) (:at 1635234357410)
+                    :data $ {}
+                      |T $ {} (:type :leaf) (:by |u0) (:at 1635234357410) (:text |:code)
+                      |j $ {} (:type :leaf) (:by |u0) (:at 1635234357410) (:text |200)
+                  |t $ {} (:type :expr) (:by |u0) (:at 1635234527621)
+                    :data $ {}
+                      |T $ {} (:type :leaf) (:by |u0) (:at 1635234530563) (:text |:headers)
+                      |j $ {} (:type :expr) (:by |u0) (:at 1635234530868)
+                        :data $ {}
+                          |T $ {} (:type :leaf) (:by |u0) (:at 1635234531808) (:text |{})
+                          |j $ {} (:type :expr) (:by |u0) (:at 1635234532157)
+                            :data $ {}
+                              |T $ {} (:type :leaf) (:by |u0) (:at 1635234534604) (:text |:content-type)
+                              |j $ {} (:type :leaf) (:by |u0) (:at 1635234808004) (:text "|\"application/json")
+                  |v $ {} (:type :expr) (:by |u0) (:at 1635234357410)
+                    :data $ {}
+                      |T $ {} (:type :leaf) (:by |u0) (:at 1635234357410) (:text |:body)
+                      |j $ {} (:type :expr) (:by |u0) (:at 1635234494733)
+                        :data $ {}
+                          |D $ {} (:type :leaf) (:by |u0) (:at 1635234502294) (:text |format-cirru-edn)
+                          |L $ {} (:type :leaf) (:by |u0) (:at 1635234496887) (:text |req)
           |run-tests $ {} (:type :expr) (:by |u0) (:at 1633150008092)
             :data $ {}
               |T $ {} (:type :leaf) (:by |u0) (:at 1633150011172) (:text |defn)
@@ -101,16 +163,6 @@
               |v $ {} (:type :expr) (:by |u0) (:at 1633150002066)
                 :data $ {}
                   |T $ {} (:type :leaf) (:by |u0) (:at 1633150004371) (:text |run-tests)
-          |mid-f $ {} (:type :expr) (:by |u0) (:at 1634927786817)
-            :data $ {}
-              |T $ {} (:type :leaf) (:by |u0) (:at 1634927788771) (:text |defn)
-              |j $ {} (:type :leaf) (:by |u0) (:at 1634927786817) (:text |mid-f)
-              |r $ {} (:type :expr) (:by |u0) (:at 1634927786817)
-                :data $ {}
-              |v $ {} (:type :expr) (:by |u0) (:at 1634927789650)
-                :data $ {}
-                  |T $ {} (:type :leaf) (:by |u0) (:at 1634927790523) (:text |println)
-                  |j $ {} (:type :leaf) (:by |u0) (:at 1634927804262) (:text "|\"fff222")
           |demo-server! $ {} (:type :expr) (:by |u0) (:at 1634925851472)
             :data $ {}
               |T $ {} (:type :leaf) (:by |u0) (:at 1634925851472) (:text |defn)
@@ -133,35 +185,20 @@
                       |j $ {} (:type :expr) (:by |u0) (:at 1634925876370)
                         :data $ {}
                           |T $ {} (:type :leaf) (:by |u0) (:at 1634925879038) (:text |req)
-                      |n $ {} (:type :expr) (:by |u0) (:at 1634926576882)
+                      |u $ {} (:type :expr) (:by |u0) (:at 1635234343570)
                         :data $ {}
-                          |T $ {} (:type :leaf) (:by |u0) (:at 1634926579047) (:text |println)
-                          |j $ {} (:type :leaf) (:by |u0) (:at 1634927753197) (:text "|\"got request2")
-                          |r $ {} (:type :leaf) (:by |u0) (:at 1634926607010) (:text |req)
-                      |p $ {} (:type :expr) (:by |u0) (:at 1634927780305)
-                        :data $ {}
-                          |T $ {} (:type :leaf) (:by |u0) (:at 1634927786365) (:text |mid-f)
-                      |r $ {} (:type :expr) (:by |u0) (:at 1634925879592)
-                        :data $ {}
-                          |T $ {} (:type :leaf) (:by |u0) (:at 1634925880124) (:text |{})
-                          |j $ {} (:type :expr) (:by |u0) (:at 1634925880395)
-                            :data $ {}
-                              |T $ {} (:type :leaf) (:by |u0) (:at 1634925884137) (:text |:status)
-                              |j $ {} (:type :leaf) (:by |u0) (:at 1634925885728) (:text |:ok)
-                          |r $ {} (:type :expr) (:by |u0) (:at 1634925886286)
-                            :data $ {}
-                              |T $ {} (:type :leaf) (:by |u0) (:at 1634925887053) (:text |:code)
-                              |j $ {} (:type :leaf) (:by |u0) (:at 1634925890257) (:text |200)
-                          |v $ {} (:type :expr) (:by |u0) (:at 1634925893151)
-                            :data $ {}
-                              |T $ {} (:type :leaf) (:by |u0) (:at 1634925894468) (:text |:body)
-                              |j $ {} (:type :leaf) (:by |u0) (:at 1634925900012) (:text "|\"TODO some Body")
+                          |T $ {} (:type :leaf) (:by |u0) (:at 1635234354812) (:text |on-request)
+                          |j $ {} (:type :leaf) (:by |u0) (:at 1635234348198) (:text |req)
           |reload! $ {} (:type :expr) (:by |u0) (:at 1633149998862)
             :data $ {}
               |T $ {} (:type :leaf) (:by |u0) (:at 1633149998862) (:text |defn)
               |j $ {} (:type :leaf) (:by |u0) (:at 1633149998862) (:text |reload!)
               |r $ {} (:type :expr) (:by |u0) (:at 1633149998862)
                 :data $ {}
+              |v $ {} (:type :expr) (:by |u0) (:at 1635234381868)
+                :data $ {}
+                  |T $ {} (:type :leaf) (:by |u0) (:at 1635234382819) (:text |println)
+                  |j $ {} (:type :leaf) (:by |u0) (:at 1635234384199) (:text "|\"Reload")
         :proc $ {} (:type :expr) (:by |u0) (:at 1633149625774)
           :data $ {}
       |http.util $ {}
@@ -241,4 +278,4 @@
           :data $ {}
   :configs $ {} (:port 6001) (:init-fn |http.test/main!) (:reload-fn |http.test/reload!)
     :modules $ []
-    :version |0.0.3
+    :version |0.0.4
