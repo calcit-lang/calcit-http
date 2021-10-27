@@ -15,9 +15,15 @@ struct ResponseSkeleton {
 }
 
 #[no_mangle]
+pub fn abi_version() -> String {
+  String::from("0.0.1")
+}
+
+#[no_mangle]
 pub fn serve_http(
   args: Vec<Edn>,
   handler: Arc<dyn Fn(Vec<Edn>) -> Result<Edn, String>>,
+  _finish: Box<dyn FnOnce()>,
 ) -> Result<Edn, String> {
   if args.is_empty() {
     return Err(format!("expected an option, got nothing: {:?}", args));

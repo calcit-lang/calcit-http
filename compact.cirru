@@ -2,7 +2,7 @@
 {} (:package |http)
   :configs $ {} (:init-fn |http.test/main!) (:reload-fn |http.test/reload!)
     :modules $ []
-    :version |0.0.4
+    :version |0.0.5
   :files $ {}
     |http.core $ {}
       :ns $ quote
