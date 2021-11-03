@@ -1,6 +1,6 @@
 [package]
 name = "calcit_http"
-version = "0.0.5"
+version = "0.0.6"
 authors = ["jiyinyiyong <jiyinyiyong@gmail.com>"]
 edition = "2018"
 
@@ -15,4 +15,4 @@ crate-type = ["dylib"] # Creates dynamic lib
 [dependencies]
 cirru_edn = "0.2.8"
 cirru_parser = "0.1.12"
-tiny_http = "0.8"
+tiny_http = "0.9"
