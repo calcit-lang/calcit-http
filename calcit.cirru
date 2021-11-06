@@ -278,4 +278,4 @@
           :data $ {}
   :configs $ {} (:port 6001) (:init-fn |http.test/main!) (:reload-fn |http.test/reload!)
     :modules $ []
-    :version |0.0.5
+    :version |0.0.6

@@ -5,18 +5,18 @@ use tiny_http::{Method, Response, Server};
 
 struct HttpServerOptions {
   port: u16,
-  host: String,
+  host: Box<str>,
 }
 
 struct ResponseSkeleton {
   code: u8,
-  headers: HashMap<String, String>,
-  body: String,
+  headers: HashMap<Box<str>, Box<str>>,
+  body: Box<str>,
 }
 
 #[no_mangle]
 pub fn abi_version() -> String {
-  String::from("0.0.1")
+  String::from("0.0.5")
 }
 
 #[no_mangle]
@@ -41,31 +41,25 @@ pub fn serve_http(
     // );
 
     let mut m: HashMap<Edn, Edn> = HashMap::new();
-    m.insert(
-      Edn::Keyword(String::from("method")),
-      Edn::Keyword(request.method().to_string()),
-    );
-    m.insert(
-      Edn::Keyword(String::from("url")),
-      Edn::Str(request.url().to_string()),
-    );
+    m.insert(Edn::kwd("method"), Edn::kwd(&request.method().to_string()));
+    m.insert(Edn::kwd("url"), Edn::str(request.url().to_string()));
 
     let mut headers: HashMap<Edn, Edn> = HashMap::new();
 
     for pair in request.headers() {
       headers.insert(
-        Edn::Keyword(pair.field.to_string()),
-        Edn::Str(pair.value.to_string()),
+        Edn::kwd(&pair.field.to_string()),
+        Edn::str(pair.value.to_string()),
       );
     }
-    m.insert(Edn::Keyword(String::from("headers")), Edn::Map(headers));
+    m.insert(Edn::kwd("headers"), Edn::Map(headers));
 
     if request.method() != &Method::Get {
       let mut content = String::new();
       request.as_reader().read_to_string(&mut content).unwrap();
       m.insert(
-        Edn::Keyword(String::from("body")),
-        Edn::Str(content.to_string()),
+        Edn::kwd("body"),
+        Edn::Str(content.to_string().into_boxed_str()),
       );
     }
 
@@ -92,21 +86,21 @@ fn parse_options(d: &Edn) -> Result<HttpServerOptions, String> {
   match d {
     Edn::Nil => Ok(HttpServerOptions {
       port: 4000,
-      host: String::from("0.0.0.0"),
+      host: String::from("0.0.0.0").into_boxed_str(),
     }),
     Edn::Map(m) => {
       let mut options = HttpServerOptions {
         port: 4000,
-        host: String::from("0.0.0.0"),
+        host: String::from("0.0.0.0").into_boxed_str(),
       };
-      options.port = match m.get(&Edn::Keyword(String::from("port"))) {
+      options.port = match m.get(&Edn::kwd("port")) {
         Some(Edn::Number(port)) => *port as u16,
         None => 4000,
         a => return Err(format!("invalid config for port: {:?}", a)),
       };
-      options.host = match m.get(&Edn::Keyword(String::from("host"))) {
+      options.host = match m.get(&Edn::kwd("host")) {
         Some(Edn::Str(host)) => host.to_owned(),
-        None => String::from("0.0.0.0"),
+        None => String::from("0.0.0.0").into_boxed_str(),
         a => return Err(format!("invalid config for host: {:?}", a)),
       };
       Ok(options)
@@ -121,27 +115,27 @@ fn parse_response(info: &Edn) -> Result<ResponseSkeleton, String> {
     let mut res = ResponseSkeleton {
       code: 200,
       headers: HashMap::new(),
-      body: String::from(""),
+      body: String::from("").into_boxed_str(),
     };
-    res.code = match m.get(&Edn::Keyword(String::from("code"))) {
+    res.code = match m.get(&Edn::kwd("code")) {
       Some(Edn::Number(n)) => *n as u8,
       None => 200,
       a => return Err(format!("invalid code: {:?}", a)),
     };
-    res.body = match m.get(&Edn::Keyword(String::from("body"))) {
+    res.body = match m.get(&Edn::kwd("body")) {
       Some(Edn::Str(s)) => s.to_owned(),
-      Some(a) => a.to_string(),
-      None => String::from(""),
+      Some(a) => a.to_string().into_boxed_str(),
+      None => String::from("").into_boxed_str(),
     };
-    res.headers = match m.get(&Edn::Keyword(String::from("headers"))) {
+    res.headers = match m.get(&Edn::kwd("headers")) {
       Some(Edn::Map(m)) => {
-        let mut hs: HashMap<String, String> = HashMap::new();
+        let mut hs: HashMap<Box<str>, Box<str>> = HashMap::new();
         for (k, v) in m {
           if let Edn::Keyword(s) = k {
             if let Edn::Str(s2) = v {
-              hs.insert(s.to_owned(), s2.to_owned());
+              hs.insert(s.to_str(), s2.to_owned());
             } else {
-              hs.insert(s.to_owned(), v.to_string());
+              hs.insert(s.to_str(), v.to_string().into_boxed_str());
             }
           } else {
             return Err(format!("invalid head entry: {}", k));
