@@ -3,6 +3,9 @@
   :configs $ {} (:init-fn |http.test/main!) (:reload-fn |http.test/reload!)
     :modules $ []
     :version |0.0.6
+  :entries $ {}
+    :server $ {} (:init-fn |http.test/demo-server!) (:reload-fn |http.test/reload!)
+      :modules $ []
   :files $ {}
     |http.core $ {}
       :ns $ quote
