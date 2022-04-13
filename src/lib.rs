@@ -16,7 +16,7 @@ struct ResponseSkeleton {
 
 #[no_mangle]
 pub fn abi_version() -> String {
-  String::from("0.0.5")
+  String::from("0.0.6")
 }
 
 #[no_mangle]
@@ -47,20 +47,14 @@ pub fn serve_http(
     let mut headers: HashMap<Edn, Edn> = HashMap::new();
 
     for pair in request.headers() {
-      headers.insert(
-        Edn::kwd(&pair.field.to_string()),
-        Edn::str(pair.value.to_string()),
-      );
+      headers.insert(Edn::kwd(&pair.field.to_string()), Edn::str(pair.value.to_string()));
     }
     m.insert(Edn::kwd("headers"), Edn::Map(headers));
 
     if request.method() != &Method::Get {
       let mut content = String::new();
       request.as_reader().read_to_string(&mut content).unwrap();
-      m.insert(
-        Edn::kwd("body"),
-        Edn::Str(content.to_string().into_boxed_str()),
-      );
+      m.insert(Edn::kwd("body"), Edn::Str(content.to_string().into_boxed_str()));
     }
 
     let info = Edn::Map(m);
@@ -70,11 +64,7 @@ pub fn serve_http(
     let mut response = Response::from_string(res.body.to_string()).with_status_code(res.code);
 
     for (field, value) in res.headers {
-      response.add_header(
-        format!("{}: {}", field, value)
-          .parse::<tiny_http::Header>()
-          .unwrap(),
-      );
+      response.add_header(format!("{}: {}", field, value).parse::<tiny_http::Header>().unwrap());
     }
     request.respond(response).map_err(|x| x.to_string())?;
   }
