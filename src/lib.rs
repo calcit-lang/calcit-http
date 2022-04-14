@@ -121,15 +121,19 @@ fn parse_response(info: &Edn) -> Result<ResponseSkeleton, String> {
       Some(Edn::Map(m)) => {
         let mut hs: HashMap<Box<str>, Box<str>> = HashMap::new();
         for (k, v) in m {
-          if let Edn::Keyword(s) = k {
-            if let Edn::Str(s2) = v {
-              hs.insert(s.to_str(), s2.to_owned());
-            } else {
-              hs.insert(s.to_str(), v.to_string().into_boxed_str());
-            }
+          let k: Box<str> = if let Edn::Keyword(s) = k {
+            s.to_str()
+          } else if let Edn::Str(s) = k {
+            s.to_owned()
           } else {
             return Err(format!("invalid head entry: {}", k));
-          }
+          };
+          let value = if let Edn::Str(s2) = v {
+            s2.to_owned()
+          } else {
+            v.to_string().into_boxed_str()
+          };
+          hs.insert(k, value);
         }
         hs
       }
