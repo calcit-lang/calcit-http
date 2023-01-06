@@ -42,7 +42,26 @@ pub fn serve_http(
 
     let mut m: HashMap<Edn, Edn> = HashMap::new();
     m.insert(Edn::kwd("method"), Edn::kwd(&request.method().to_string()));
-    m.insert(Edn::kwd("url"), Edn::str(request.url().to_string()));
+    let url = request.url().to_string();
+    m.insert(Edn::kwd("url"), Edn::str(url.to_owned()));
+
+    match url.split_once('?') {
+      Some((path_part, query_part)) => {
+        m.insert(Edn::kwd("path"), path_part.into());
+        m.insert(Edn::kwd("querystring"), query_part.into());
+        let query = querystring::querify(query_part);
+        let mut query_dict = HashMap::new();
+        for (k, v) in query {
+          query_dict.insert(Edn::kwd(k), v.into());
+        }
+        m.insert(Edn::kwd("query"), Edn::Map(query_dict));
+      }
+      None => {
+        m.insert(Edn::kwd("path"), url.into());
+        m.insert(Edn::kwd("querystring"), "".into());
+        m.insert(Edn::kwd("query"), Edn::Map(HashMap::new()));
+      }
+    }
 
     let mut headers: HashMap<Edn, Edn> = HashMap::new();
 
