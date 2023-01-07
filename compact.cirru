@@ -1,27 +1,28 @@
 
 {} (:package |http)
-  :configs $ {} (:init-fn |http.test/main!) (:reload-fn |http.test/reload!)
+  :configs $ {} (:init-fn |http.test/main!) (:reload-fn |http.test/reload!) (:version |0.0.6)
     :modules $ []
-    :version |0.0.6
   :entries $ {}
     :server $ {} (:init-fn |http.test/demo-server!) (:reload-fn |http.test/reload!)
       :modules $ []
   :files $ {}
     |http.core $ {}
-      :ns $ quote
-        ns http.core $ :require
-          http.$meta :refer $ calcit-dirname
-          http.util :refer $ get-dylib-path
       :defs $ {}
         |serve-http! $ quote
           defn serve-http! (options f)
             &call-dylib-edn-fn (get-dylib-path "\"/dylibs/libcalcit_http") "\"serve_http" options f
-    |http.test $ {}
       :ns $ quote
-        ns http.test $ :require
-          http.core :refer $ serve-http!
-          http.$meta :refer $ calcit-dirname calcit-filename
+        ns http.core $ :require
+          http.$meta :refer $ calcit-dirname
+          http.util :refer $ get-dylib-path
+    |http.test $ {}
       :defs $ {}
+        |demo-server! $ quote
+          defn demo-server! () $ serve-http!
+            {} $ :port 4000
+            fn (req) (on-request req)
+        |main! $ quote
+          defn main! () $ run-tests
         |mid-call $ quote
           defn mid-call () $ println "\"Calling internal function"
         |on-request $ quote
@@ -31,20 +32,15 @@
             {} (:status :ok) (:code 200)
               :headers $ {} (:content-type "\"application/json")
               :body $ format-cirru-edn req
-        |run-tests $ quote
-          defn run-tests () (println "\"%%%% test for lib") (println calcit-filename calcit-dirname) (println "\"No tests...")
-        |main! $ quote
-          defn main! () $ run-tests
-        |demo-server! $ quote
-          defn demo-server! () $ serve-http!
-            {} $ :port 4000
-            fn (req) (on-request req)
         |reload! $ quote
           defn reload! () $ println "\"Reload"
-    |http.util $ {}
+        |run-tests $ quote
+          defn run-tests () (println "\"%%%% test for lib") (println calcit-filename calcit-dirname) (println "\"No tests...")
       :ns $ quote
-        ns http.util $ :require
+        ns http.test $ :require
+          http.core :refer $ serve-http!
           http.$meta :refer $ calcit-dirname calcit-filename
+    |http.util $ {}
       :defs $ {}
         |get-dylib-ext $ quote
           defmacro get-dylib-ext () $ case-default (&get-os) "\".so" (:macos "\".dylib") (:windows "\".dll")
@@ -54,3 +50,6 @@
         |or-current-path $ quote
           defn or-current-path (p)
             if (blank? p) "\"." p
+      :ns $ quote
+        ns http.util $ :require
+          http.$meta :refer $ calcit-dirname calcit-filename
