@@ -41,39 +41,39 @@ pub fn serve_http(
     // );
 
     let mut m: HashMap<Edn, Edn> = HashMap::new();
-    m.insert(Edn::kwd("method"), Edn::kwd(&request.method().to_string()));
+    m.insert(Edn::tag("method"), Edn::tag(&request.method().to_string()));
     let url = request.url().to_string();
-    m.insert(Edn::kwd("url"), Edn::str(url.to_owned()));
+    m.insert(Edn::tag("url"), Edn::str(url.to_owned()));
 
     match url.split_once('?') {
       Some((path_part, query_part)) => {
-        m.insert(Edn::kwd("path"), path_part.into());
-        m.insert(Edn::kwd("querystring"), query_part.into());
+        m.insert(Edn::tag("path"), path_part.into());
+        m.insert(Edn::tag("querystring"), query_part.into());
         let query = querystring::querify(query_part);
         let mut query_dict = HashMap::new();
         for (k, v) in query {
-          query_dict.insert(Edn::kwd(k), v.into());
+          query_dict.insert(Edn::tag(k), v.into());
         }
-        m.insert(Edn::kwd("query"), Edn::Map(query_dict));
+        m.insert(Edn::tag("query"), Edn::Map(query_dict));
       }
       None => {
-        m.insert(Edn::kwd("path"), url.into());
-        m.insert(Edn::kwd("querystring"), "".into());
-        m.insert(Edn::kwd("query"), Edn::Map(HashMap::new()));
+        m.insert(Edn::tag("path"), url.into());
+        m.insert(Edn::tag("querystring"), "".into());
+        m.insert(Edn::tag("query"), Edn::Map(HashMap::new()));
       }
     }
 
     let mut headers: HashMap<Edn, Edn> = HashMap::new();
 
     for pair in request.headers() {
-      headers.insert(Edn::kwd(&pair.field.to_string()), Edn::str(pair.value.to_string()));
+      headers.insert(Edn::tag(&pair.field.to_string()), Edn::str(pair.value.to_string()));
     }
-    m.insert(Edn::kwd("headers"), Edn::Map(headers));
+    m.insert(Edn::tag("headers"), Edn::Map(headers));
 
     if request.method() != &Method::Get {
       let mut content = String::new();
       request.as_reader().read_to_string(&mut content).unwrap();
-      m.insert(Edn::kwd("body"), Edn::Str(content.to_string().into_boxed_str()));
+      m.insert(Edn::tag("body"), Edn::Str(content.to_string().into_boxed_str()));
     }
 
     let info = Edn::Map(m);
@@ -102,12 +102,12 @@ fn parse_options(d: &Edn) -> Result<HttpServerOptions, String> {
         port: 4000,
         host: String::from("0.0.0.0").into_boxed_str(),
       };
-      options.port = match m.get(&Edn::kwd("port")) {
+      options.port = match m.get(&Edn::tag("port")) {
         Some(Edn::Number(port)) => *port as u16,
         None => 4000,
         a => return Err(format!("invalid config for port: {:?}", a)),
       };
-      options.host = match m.get(&Edn::kwd("host")) {
+      options.host = match m.get(&Edn::tag("host")) {
         Some(Edn::Str(host)) => host.to_owned(),
         None => String::from("0.0.0.0").into_boxed_str(),
         a => return Err(format!("invalid config for host: {:?}", a)),
@@ -126,21 +126,21 @@ fn parse_response(info: &Edn) -> Result<ResponseSkeleton, String> {
       headers: HashMap::new(),
       body: String::from("").into_boxed_str(),
     };
-    res.code = match m.get(&Edn::kwd("code")) {
+    res.code = match m.get(&Edn::tag("code")) {
       Some(Edn::Number(n)) => *n as u8,
       None => 200,
       a => return Err(format!("invalid code: {:?}", a)),
     };
-    res.body = match m.get(&Edn::kwd("body")) {
+    res.body = match m.get(&Edn::tag("body")) {
       Some(Edn::Str(s)) => s.to_owned(),
       Some(a) => a.to_string().into_boxed_str(),
       None => String::from("").into_boxed_str(),
     };
-    res.headers = match m.get(&Edn::kwd("headers")) {
+    res.headers = match m.get(&Edn::tag("headers")) {
       Some(Edn::Map(m)) => {
         let mut hs: HashMap<Box<str>, Box<str>> = HashMap::new();
         for (k, v) in m {
-          let k: Box<str> = if let Edn::Keyword(s) = k {
+          let k: Box<str> = if let Edn::Tag(s) = k {
             s.to_str()
           } else if let Edn::Str(s) = k {
             s.to_owned()

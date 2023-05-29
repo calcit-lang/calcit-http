@@ -1,6 +1,6 @@
 
 {} (:package |http)
-  :configs $ {} (:init-fn |http.test/main!) (:reload-fn |http.test/reload!) (:version |0.0.6)
+  :configs $ {} (:init-fn |http.test/main!) (:reload-fn |http.test/reload!) (:version |0.1.0)
     :modules $ []
   :entries $ {}
     :server $ {} (:init-fn |http.test/demo-server!) (:reload-fn |http.test/reload!)
