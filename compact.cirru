@@ -1,12 +1,12 @@
 
 {} (:package |http)
-  :configs $ {} (:init-fn |http.test/main!) (:reload-fn |http.test/reload!) (:version |0.2.0)
+  :configs $ {} (:init-fn |http.test/main!) (:reload-fn |http.test/reload!) (:version |0.3.0)
     :modules $ []
   :entries $ {}
     :server $ {} (:init-fn |http.test/demo-server!) (:reload-fn |http.test/reload!)
       :modules $ []
   :files $ {}
-    |http.core $ {}
+    |http.core $ %{} :FileEntry
       :defs $ {}
         |serve-http! $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -17,7 +17,7 @@
           ns http.core $ :require
             http.$meta :refer $ calcit-dirname
             http.util :refer $ get-dylib-path
-    |http.test $ {}
+    |http.test $ %{} :FileEntry
       :defs $ {}
         |demo-server! $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -49,7 +49,7 @@
           ns http.test $ :require
             http.core :refer $ serve-http!
             http.$meta :refer $ calcit-dirname calcit-filename
-    |http.util $ {}
+    |http.util $ %{} :FileEntry
       :defs $ {}
         |get-dylib-ext $ %{} :CodeEntry (:doc |)
           :code $ quote
