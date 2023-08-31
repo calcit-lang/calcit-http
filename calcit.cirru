@@ -1,13 +1,12 @@
 
 {} (:package |http)
-  :configs $ {} (:init-fn |http.test/main!) (:port 6001) (:reload-fn |http.test/reload!) (:version |0.2.0)
+  :configs $ {} (:init-fn |http.test/main!) (:port 6001) (:reload-fn |http.test/reload!) (:version |0.3.0)
     :modules $ []
   :entries $ {}
     :server $ {} (:init-fn |http.test/demo-server!) (:reload-fn |http.test/reload!)
       :modules $ []
   :files $ {}
-    |http.core $ {}
-      :configs $ {}
+    |http.core $ %{} :FileEntry
       :defs $ {}
         |serve-http! $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1630219258753) (:by |u0)
@@ -50,8 +49,7 @@
                     |r $ %{} :Expr (:at 1633181140100) (:by |u0)
                       :data $ {}
                         |T $ %{} :Leaf (:at 1634804181370) (:by |u0) (:text |get-dylib-path)
-    |http.test $ {}
-      :configs $ {}
+    |http.test $ %{} :FileEntry
       :defs $ {}
         |demo-server! $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1634925851472) (:by |u0)
@@ -208,8 +206,7 @@
                       :data $ {}
                         |T $ %{} :Leaf (:at 1634703941759) (:by |u0) (:text |calcit-dirname)
                         |j $ %{} :Leaf (:at 1634703953240) (:by |u0) (:text |calcit-filename)
-    |http.util $ {}
-      :configs $ {}
+    |http.util $ %{} :FileEntry
       :defs $ {}
         |get-dylib-ext $ %{} :CodeEntry (:doc |)
           :code $ %{} :Expr (:at 1630231398718) (:by |u0)
