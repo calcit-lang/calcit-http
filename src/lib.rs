@@ -9,7 +9,7 @@ struct HttpServerOptions {
 }
 
 struct ResponseSkeleton {
-  code: u8,
+  code: u16,
   headers: HashMap<Box<str>, Box<str>>,
   body: Box<str>,
 }
@@ -127,7 +127,7 @@ fn parse_response(info: &Edn) -> Result<ResponseSkeleton, String> {
       body: String::from("").into_boxed_str(),
     };
     res.code = match m.get(&Edn::tag("code")) {
-      Some(Edn::Number(n)) => *n as u8,
+      Some(Edn::Number(n)) => *n as u16,
       None => 200,
       a => return Err(format!("invalid code: {:?}", a)),
     };
