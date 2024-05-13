@@ -1,22 +1,22 @@
-use cirru_edn::Edn;
+use cirru_edn::{Edn, EdnMapView};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tiny_http::{Method, Response, Server};
 
 struct HttpServerOptions {
   port: u16,
-  host: Box<str>,
+  host: Arc<str>,
 }
 
 struct ResponseSkeleton {
   code: u16,
-  headers: HashMap<Box<str>, Box<str>>,
-  body: Box<str>,
+  headers: HashMap<Arc<str>, Arc<str>>,
+  body: Arc<str>,
 }
 
 #[no_mangle]
 pub fn abi_version() -> String {
-  String::from("0.0.6")
+  String::from("0.0.7")
 }
 
 #[no_mangle]
@@ -54,12 +54,12 @@ pub fn serve_http(
         for (k, v) in query {
           query_dict.insert(Edn::tag(k), v.into());
         }
-        m.insert(Edn::tag("query"), Edn::Map(query_dict));
+        m.insert(Edn::tag("query"), Edn::Map(EdnMapView(query_dict)));
       }
       None => {
         m.insert(Edn::tag("path"), url.into());
         m.insert(Edn::tag("querystring"), "".into());
-        m.insert(Edn::tag("query"), Edn::Map(HashMap::new()));
+        m.insert(Edn::tag("query"), Edn::Map(EdnMapView::default()));
       }
     }
 
@@ -68,15 +68,15 @@ pub fn serve_http(
     for pair in request.headers() {
       headers.insert(Edn::tag(&pair.field.to_string()), Edn::str(pair.value.to_string()));
     }
-    m.insert(Edn::tag("headers"), Edn::Map(headers));
+    m.insert(Edn::tag("headers"), Edn::Map(EdnMapView(headers)));
 
     if request.method() != &Method::Get {
       let mut content = String::new();
       request.as_reader().read_to_string(&mut content).unwrap();
-      m.insert(Edn::tag("body"), Edn::Str(content.to_string().into_boxed_str()));
+      m.insert(Edn::tag("body"), Edn::Str(content.to_string().into()));
     }
 
-    let info = Edn::Map(m);
+    let info = Edn::Map(EdnMapView(m));
     let result = handler(vec![info])?;
     let res = parse_response(&result)?;
 
@@ -95,12 +95,12 @@ fn parse_options(d: &Edn) -> Result<HttpServerOptions, String> {
   match d {
     Edn::Nil => Ok(HttpServerOptions {
       port: 4000,
-      host: String::from("0.0.0.0").into_boxed_str(),
+      host: Arc::from("0.0.0.0"),
     }),
     Edn::Map(m) => {
       let mut options = HttpServerOptions {
         port: 4000,
-        host: String::from("0.0.0.0").into_boxed_str(),
+        host: Arc::from("0.0.0.0"),
       };
       options.port = match m.get(&Edn::tag("port")) {
         Some(Edn::Number(port)) => *port as u16,
@@ -109,7 +109,7 @@ fn parse_options(d: &Edn) -> Result<HttpServerOptions, String> {
       };
       options.host = match m.get(&Edn::tag("host")) {
         Some(Edn::Str(host)) => host.to_owned(),
-        None => String::from("0.0.0.0").into_boxed_str(),
+        None => Arc::from("0.0.0.0"),
         a => return Err(format!("invalid config for host: {:?}", a)),
       };
       Ok(options)
@@ -124,7 +124,7 @@ fn parse_response(info: &Edn) -> Result<ResponseSkeleton, String> {
     let mut res = ResponseSkeleton {
       code: 200,
       headers: HashMap::new(),
-      body: String::from("").into_boxed_str(),
+      body: String::from("").into(),
     };
     res.code = match m.get(&Edn::tag("code")) {
       Some(Edn::Number(n)) => *n as u16,
@@ -133,26 +133,26 @@ fn parse_response(info: &Edn) -> Result<ResponseSkeleton, String> {
     };
     res.body = match m.get(&Edn::tag("body")) {
       Some(Edn::Str(s)) => s.to_owned(),
-      Some(a) => a.to_string().into_boxed_str(),
-      None => String::from("").into_boxed_str(),
+      Some(a) => a.to_string().into(),
+      None => String::from("").into(),
     };
     res.headers = match m.get(&Edn::tag("headers")) {
       Some(Edn::Map(m)) => {
-        let mut hs: HashMap<Box<str>, Box<str>> = HashMap::new();
-        for (k, v) in m {
-          let k: Box<str> = if let Edn::Tag(s) = k {
-            s.to_str()
+        let mut hs: HashMap<Arc<str>, Arc<str>> = HashMap::new();
+        for (k, v) in &m.0 {
+          let k: Arc<str> = if let Edn::Tag(s) = k {
+            Arc::from(s.ref_str())
           } else if let Edn::Str(s) = k {
-            s.to_owned()
+            Arc::from(&**s)
           } else {
             return Err(format!("invalid head entry: {}", k));
           };
           let value = if let Edn::Str(s2) = v {
             s2.to_owned()
           } else {
-            v.to_string().into_boxed_str()
+            v.to_string().into()
           };
-          hs.insert(k, value);
+          hs.insert(k, Arc::from(&*value));
         }
         hs
       }
