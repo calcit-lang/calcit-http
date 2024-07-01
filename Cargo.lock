@@ -29,7 +29,7 @@ dependencies = [
 
 [[package]]
 name = "calcit_http"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "cirru_edn",
  "cirru_parser",
@@ -51,23 +51,36 @@ checksum = "fff857943da45f546682664a79488be82e69e43c1a7a2307679ab9afb3a66d2e"
 
 [[package]]
 name = "cirru_edn"
-version = "0.6.5"
+version = "0.6.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf2af443516dfa62939fbfe82812601c1cb5fc89fdf7356eee519d7b056a264d"
+checksum = "452dd17601be10c1007c43db6e39cc53b28d2be3cd4a82b01d3f5ac70b8afc05"
 dependencies = [
  "bincode",
  "cirru_parser",
+ "cjk",
  "hex",
  "lazy_static",
 ]
 
 [[package]]
 name = "cirru_parser"
-version = "0.1.29"
+version = "0.1.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c96247e15778d471f8c94b321fa11220dfb987546fcf8fb73b1a5c2b3a018a78"
+checksum = "320a8dd7792dfd18c39e2b6d06e894028cf2ce0dfb2fcd4964fb730dc37ea150"
 dependencies = [
  "bincode",
+]
+
+[[package]]
+name = "cjk"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8c5581b1ff873217332789ccc8956c1c68bcf9d693e7e5c6bcc677897fda5257"
+dependencies = [
+ "hex",
+ "lazy_static",
+ "unicode-blocks",
+ "widestring",
 ]
 
 [[package]]
@@ -165,6 +178,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "unicode-blocks"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6b12e05d9e06373163a9bb6bb8c263c261b396643a99445fe6b9811fd376581b"
+
+[[package]]
 name = "unicode-ident"
 version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -175,3 +194,9 @@ name = "virtue"
 version = "0.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9dcc60c0624df774c82a0ef104151231d37da4962957d691c011c852b2473314"
+
+[[package]]
+name = "widestring"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c168940144dd21fd8046987c16a46a33d5fc84eec29ef9dcddc2ac9e31526b7c"
