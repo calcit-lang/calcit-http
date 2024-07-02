@@ -16,7 +16,7 @@ struct ResponseSkeleton {
 
 #[no_mangle]
 pub fn abi_version() -> String {
-  String::from("0.0.8")
+  String::from("0.0.9")
 }
 
 #[no_mangle]
@@ -41,9 +41,24 @@ pub fn serve_http(
     // );
 
     let mut m: HashMap<Edn, Edn> = HashMap::new();
-    m.insert(Edn::tag("method"), Edn::tag(&request.method().to_string()));
+    m.insert(Edn::tag("method"), Edn::tag(request.method().to_string()));
     let url = request.url().to_string();
     m.insert(Edn::tag("url"), Edn::str(url.to_owned()));
+    m.insert(Edn::tag("secure"), Edn::Bool(request.secure()));
+    m.insert(
+      Edn::tag("body-length"),
+      match request.body_length() {
+        Some(v) => Edn::Number(v as f64),
+        None => Edn::Nil,
+      },
+    );
+    m.insert(
+      Edn::tag("remote-addr"),
+      match request.remote_addr() {
+        Some(addr) => Edn::str(addr.to_string()),
+        None => Edn::Nil,
+      },
+    );
 
     match url.split_once('?') {
       Some((path_part, query_part)) => {
@@ -66,7 +81,7 @@ pub fn serve_http(
     let mut headers: HashMap<Edn, Edn> = HashMap::new();
 
     for pair in request.headers() {
-      headers.insert(Edn::tag(&pair.field.to_string()), Edn::str(pair.value.to_string()));
+      headers.insert(Edn::tag(pair.field.to_string()), Edn::str(pair.value.to_string()));
     }
     m.insert(Edn::tag("headers"), Edn::Map(EdnMapView(headers)));
 
