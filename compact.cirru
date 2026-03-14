@@ -1,36 +1,51 @@
 
-{} (:package |http)
-  :configs $ {} (:init-fn |http.test/main!) (:reload-fn |http.test/reload!) (:version |0.3.0)
+{} (:about "|file is generated - never edit directly; learn cr edit/tree workflows before changing") (:package |http)
+  :configs $ {} (:init-fn |http.test/main!) (:reload-fn |http.test/reload!) (:version |0.3.1)
     :modules $ []
   :entries $ {}
-    :server $ {} (:init-fn |http.test/demo-server!) (:reload-fn |http.test/reload!)
+    :server $ {} (:init-fn |http.test/demo-server!) (:reload-fn |http.test/reload!) (:version |0.0.0)
       :modules $ []
   :files $ {}
     |http.core $ %{} :FileEntry
       :defs $ {}
-        |serve-http! $ %{} :CodeEntry (:doc |)
+        |serve-http! $ %{} :CodeEntry (:doc "|Starts a native HTTP server through the Rust dylib. Params: options (nil or map with :port and :host), f (request handler receiving a request map and returning a response map). Returns: unit while server loop runs.")
           :code $ quote
             defn serve-http! (options f)
               &call-dylib-edn-fn (get-dylib-path "\"/dylibs/libcalcit_http") "\"serve_http" options f
-      :ns $ %{} :CodeEntry (:doc |)
+          :examples $ []
+            quote $ serve-http!
+              {} (:port 4000) (:host |0.0.0.0)
+              fn (req)
+                {} (:code 200)
+                  :headers $ {} (:content-type |application/json)
+                  :body |ok
+          :schema $ :: :fn
+            {} (:return :unit)
+              :args $ [] :dynamic
+                :: :fn $ {} (:return :dynamic)
+                  :args $ [] :dynamic
+      :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns http.core $ :require
             http.$meta :refer $ calcit-dirname
             http.util :refer $ get-dylib-path
     |http.test $ %{} :FileEntry
       :defs $ {}
-        |demo-server! $ %{} :CodeEntry (:doc |)
+        |demo-server! $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn demo-server! () $ serve-http!
               {} $ :port 4000
               fn (req) (on-request req)
-        |main! $ %{} :CodeEntry (:doc |)
+          :examples $ []
+        |main! $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn main! () $ run-tests
-        |mid-call $ %{} :CodeEntry (:doc |)
+          :examples $ []
+        |mid-call $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn mid-call () $ println "\"Calling internal function"
-        |on-request $ %{} :CodeEntry (:doc |)
+          :examples $ []
+        |on-request $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn on-request (req) (; println "\"Handling request:" req)
               println $ :url req
@@ -38,31 +53,37 @@
               {} (:status :ok) (:code 200)
                 :headers $ {} (:content-type "\"application/json")
                 :body $ format-cirru-edn req
-        |reload! $ %{} :CodeEntry (:doc |)
+          :examples $ []
+        |reload! $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn reload! () $ println "\"Reload"
-        |run-tests $ %{} :CodeEntry (:doc |)
+          :examples $ []
+        |run-tests $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn run-tests () (println "\"%%%% test for lib") (println calcit-filename calcit-dirname) (println "\"No tests...")
-      :ns $ %{} :CodeEntry (:doc |)
+          :examples $ []
+      :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns http.test $ :require
             http.core :refer $ serve-http!
             http.$meta :refer $ calcit-dirname calcit-filename
     |http.util $ %{} :FileEntry
       :defs $ {}
-        |get-dylib-ext $ %{} :CodeEntry (:doc |)
+        |get-dylib-ext $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defmacro get-dylib-ext () $ case-default (&get-os) "\".so" (:macos "\".dylib") (:windows "\".dll")
-        |get-dylib-path $ %{} :CodeEntry (:doc |)
+          :examples $ []
+        |get-dylib-path $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn get-dylib-path (p)
               str (or-current-path calcit-dirname) p $ get-dylib-ext
-        |or-current-path $ %{} :CodeEntry (:doc |)
+          :examples $ []
+        |or-current-path $ %{} :CodeEntry (:doc |) (:schema nil)
           :code $ quote
             defn or-current-path (p)
               if (blank? p) "\"." p
-      :ns $ %{} :CodeEntry (:doc |)
+          :examples $ []
+      :ns $ %{} :NsEntry (:doc |)
         :code $ quote
           ns http.util $ :require
             http.$meta :refer $ calcit-dirname calcit-filename
