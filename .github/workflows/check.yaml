@@ -18,11 +18,11 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          components: clippy
-          # toolchain: nightly
+
+      - uses: Swatinem/rust-cache@v2
 
       - run: cargo build --release
 
-      - run: mkdir dylibs/ && ls target/release/ && cp -v target/release/*.* dylibs/
+      - run: rm -rfv dylibs/* && mkdir -p dylibs/ && ls target/release/ && cp -v target/release/*.* dylibs/
 
-      - run: cr -1
+      - run: cr

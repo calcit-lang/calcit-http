@@ -14,22 +14,28 @@ struct ResponseSkeleton {
   body: Arc<str>,
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub fn abi_version() -> String {
   String::from("0.0.9")
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
+pub fn edn_version() -> String {
+  cirru_edn::version().to_string()
+}
+
+#[unsafe(no_mangle)]
+#[allow(clippy::mutable_key_type)]
 pub fn serve_http(
   args: Vec<Edn>,
-  handler: Arc<dyn Fn(Vec<Edn>) -> Result<Edn, String>>,
-  _finish: Box<dyn FnOnce()>,
+  handler: Arc<dyn Fn(Vec<Edn>) -> Result<Edn, String> + Send + Sync + 'static>,
+  _finish: Box<dyn FnOnce() + Send + Sync + 'static>,
 ) -> Result<Edn, String> {
   if args.is_empty() {
     return Err(format!("expected an option, got nothing: {:?}", args));
   }
   let options = parse_options(&args[0])?;
-  let server = Server::http(&format!("{}:{}", options.host, options.port)).unwrap();
+  let server = Server::http(format!("{}:{}", options.host, options.port)).unwrap();
   println!("Server started at {}:{}", options.host, options.port);
 
   for mut request in server.incoming_requests() {
@@ -134,6 +140,7 @@ fn parse_options(d: &Edn) -> Result<HttpServerOptions, String> {
 }
 
 /// from user response
+#[allow(clippy::mutable_key_type)]
 fn parse_response(info: &Edn) -> Result<ResponseSkeleton, String> {
   if let Edn::Map(m) = info {
     let mut res = ResponseSkeleton {
