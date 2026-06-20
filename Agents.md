@@ -4,8 +4,8 @@
 
 1. **升级依赖版本**
    - 在 `Cargo.toml` 中保持与当前 Calcit 运行时兼容：
-     - `cirru_edn = "0.7.3"`
-     - `cirru_parser = "0.2.3"`
+     - `cirru_edn = "0.7.7"`
+     - `cirru_parser = "0.2.8"`
    - 当前工程使用 `edition = "2024"`。
 
 2. **保持 FFI 导出接口完整**
@@ -81,7 +81,7 @@
 
 ### 当前已验证状态
 
-- 依赖版本已升级到 `cirru_edn 0.7.3`、`cirru_parser 0.2.3`
+- 依赖版本已升级到 `cirru_edn 0.7.7`、`cirru_parser 0.2.8`
 - FFI 已补充 `edn_version()`
 - Rust 2024 下导出属性已切换为 `#[unsafe(no_mangle)]`
 - 项目已切换到 `compact.cirru + deps.cirru` 工作流
