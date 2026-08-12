@@ -30,7 +30,9 @@ The callback should return a response map with:
 - `:headers` - map of header name to string value
 - `:body` - response body string
 
-Install to `~/.config/calcit/modules/`, compile and provide `*.{dylib,so}` file with `./build.sh`.
+Install with `caps add calcit-lang/http@<tag>` and run `caps`. The project-local
+`.calcit/modules/` view points at the versioned global module store. Compile and provide
+the matching `*.{dylib,so}` file with `./build.sh`.
 
 ### Workflow
 

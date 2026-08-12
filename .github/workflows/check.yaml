@@ -17,6 +17,15 @@ jobs:
         with:
           version: "0.13.13"
 
+      - name: Validate Calcit snapshot and types
+        run: |
+          caps --ci
+          cr calcit.cirru edit format
+          git diff --exit-code -- calcit.cirru
+          cr calcit.cirru --check-only
+          cr calcit.cirru analyze check-types --summary-only --format json
+          cr calcit.cirru analyze weak-types --only schema-dynamic,code-dynamic --intent unresolved --summary-only --format json
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
@@ -27,4 +36,4 @@ jobs:
 
       - run: rm -rfv dylibs/* && mkdir -p dylibs/ && ls target/release/ && cp -v target/release/*.* dylibs/
 
-      - run: caps --ci && cr
+      - run: cr calcit.cirru
