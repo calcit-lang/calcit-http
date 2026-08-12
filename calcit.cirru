@@ -65,7 +65,9 @@
                 :headers $ {} (:content-type |application/json)
                 :body $ format-cirru-edn req
           :examples $ []
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Fn
+            {} (:return 'Dynamic)
+              :args $ [] 'Dynamic
         |reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn reload! () $ println |Reload

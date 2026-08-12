@@ -32,7 +32,7 @@ The callback should return a response map with:
 
 Install with `caps add calcit-lang/http@<tag>` and run `caps`. The project-local
 `.calcit/modules/` view points at the versioned global module store. Compile and provide
-the matching `*.{dylib,so}` file with `./build.sh`.
+the matching `*.{dylib,so,dll}` file with `./build.sh`.
 
 ### Workflow
 
