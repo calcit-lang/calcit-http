@@ -13,7 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: calcit-lang/setup-cr@0.0.8
+      - uses: calcit-lang/setup-cr@0.0.9
+        with:
+          version: "0.13.13"
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -25,4 +27,4 @@ jobs:
 
       - run: rm -rfv dylibs/* && mkdir -p dylibs/ && ls target/release/ && cp -v target/release/*.* dylibs/
 
-      - run: cr
+      - run: caps --ci && cr
