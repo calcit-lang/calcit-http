@@ -15,7 +15,7 @@ jobs:
 
       - uses: calcit-lang/setup-cr@0.0.9
         with:
-          version: "0.13.13"
+          version: "0.13.27"
 
       - name: Validate Calcit snapshot and types
         run: |
