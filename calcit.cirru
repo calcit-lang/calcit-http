@@ -12,6 +12,13 @@
   :files $ {}
     |http.core $ %{} 'FileEntry
       :defs $ {}
+        |native-smoke $ %{} 'CodeEntry (:doc "|Internal native ABI smoke probe used by this module test entry. It loads the HTTP dylib and returns a stable token.")
+          :code $ quote
+            defn native-smoke () $ &call-dylib-edn (get-dylib-path |/dylibs/libcalcit_http) |smoke_ping
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ []
         |serve-http! $ %{} 'CodeEntry (:doc "|Starts a native HTTP server through the Rust dylib. Params: options (nil or map with :port and :host), f (request handler receiving a request map and returning a response map). Returns: unit while server loop runs.")
           :code $ quote
             defn serve-http! (options f)
@@ -79,7 +86,10 @@
               :args $ []
         |run-tests $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn run-tests () (println "|%%%% test for lib") (println calcit-filename calcit-dirname) (println "|No tests...")
+            defn run-tests () (println "|%%%% test for lib") (println calcit-filename calcit-dirname)
+              do
+                assert= |calcit-http-native-ok $ native-smoke
+                , nil
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'Unit)
@@ -87,7 +97,7 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote
           ns http.test $ :require
-            http.core :refer $ serve-http!
+            http.core :refer $ serve-http! native-smoke
             http.$meta :refer $ calcit-dirname calcit-filename
     |http.util $ %{} 'FileEntry
       :defs $ {}
