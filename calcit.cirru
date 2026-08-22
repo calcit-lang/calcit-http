@@ -1,5 +1,5 @@
 
-{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |http)
+{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `calcit query` to inspect and `calcit edit`/`calcit tree` to modify. Run `calcit docs agents --full` first. Manual edits must follow format and schema conventions, then run `calcit edit format`.") (:package |http)
   :entries $ {}
     :default $ {} (:description |) (:init-fn 'http.test/main!) (:mode :native) (:reload-fn 'http.test/reload!)
       :feature-policy $ {}
@@ -89,6 +89,7 @@
             defn run-tests () (println "|%%%% test for lib") (println calcit-filename calcit-dirname)
               do
                 assert= |calcit-http-native-ok $ native-smoke
+                println "|No tests..."
                 , nil
           :examples $ []
           :schema $ :: 'Fn

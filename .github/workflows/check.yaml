@@ -18,10 +18,10 @@ jobs:
       - name: Validate Calcit snapshot and types
         run: |
           caps --ci
-          cr calcit.cirru edit format
+          calcit calcit.cirru edit format
           git diff --exit-code -- calcit.cirru
-          cr calcit.cirru --check-only
-          cr calcit.cirru analyze quality --baseline config/calcit-quality.json --format json
+          calcit calcit.cirru --check-only
+          calcit calcit.cirru analyze quality --baseline config/calcit-quality.json --format json
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -33,4 +33,4 @@ jobs:
 
       - run: rm -rfv dylibs/* && mkdir -p dylibs/ && ls target/release/ && cp -v target/release/*.* dylibs/
 
-      - run: cr calcit.cirru
+      - run: calcit calcit.cirru
