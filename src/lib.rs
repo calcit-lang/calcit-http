@@ -24,6 +24,19 @@ pub fn edn_version() -> String {
   cirru_edn::version().to_string()
 }
 
+/// A side-effect-free ABI probe used by the Calcit integration test.
+///
+/// The probe deliberately shares the same dylib loading and EDN transport path
+/// as the public server entrypoint, without binding a port or starting a
+/// long-running server loop.
+#[unsafe(no_mangle)]
+pub fn smoke_ping(args: Vec<Edn>) -> Result<Edn, String> {
+  if !args.is_empty() {
+    return Err(format!("smoke_ping expected no arguments, got {}", args.len()));
+  }
+  Ok(Edn::str("calcit-http-native-ok"))
+}
+
 #[unsafe(no_mangle)]
 #[allow(clippy::mutable_key_type)]
 pub fn serve_http(
