@@ -67,9 +67,7 @@
               :args $ []
         |on-request $ %{} 'CodeEntry (:doc |)
           :code $ quote
-            defn on-request (req) (; println "|Handling request:" req)
-              println $ get req :url
-              ; mid-call
+            defn on-request (req) (; println "|Handling request:" req) (; mid-call)
               {} (:status :ok) (:code 200)
                 :headers $ {} (:content-type |application/json)
                 :body $ format-cirru-edn req
