@@ -34,23 +34,12 @@ struct HttpResponseContext {
 static NEXT_SERVER_CONTEXT: AtomicU64 = AtomicU64::new(1);
 static SERVER_CONTROLS: LazyLock<Mutex<HashMap<u64, Arc<ServerControl>>>> = LazyLock::new(|| Mutex::new(HashMap::new()));
 
-#[unsafe(no_mangle)]
-pub fn abi_version() -> String {
-  String::from("0.0.9")
-}
-
-#[unsafe(no_mangle)]
-pub fn edn_version() -> String {
-  cirru_edn::version().to_string()
-}
-
 /// A side-effect-free ABI probe used by the Calcit integration test.
 ///
 /// The probe deliberately shares the same dylib loading and EDN transport path
 /// as the public server entrypoint, without binding a port or starting a
 /// long-running server loop.
-#[unsafe(no_mangle)]
-pub fn smoke_ping(args: Vec<Edn>) -> Result<Edn, String> {
+fn smoke_ping(args: Vec<Edn>) -> Result<Edn, String> {
   if !args.is_empty() {
     return Err(format!("smoke_ping expected no arguments, got {}", args.len()));
   }
@@ -381,29 +370,6 @@ fn request_to_edn(request: &mut tiny_http::Request) -> Result<Edn, String> {
   }
 
   Ok(Edn::Map(EdnMapView(fields)))
-}
-
-#[unsafe(no_mangle)]
-#[allow(clippy::mutable_key_type)]
-pub fn serve_http(
-  args: Vec<Edn>,
-  handler: Arc<dyn Fn(Vec<Edn>) -> Result<Edn, String> + Send + Sync + 'static>,
-  _finish: Box<dyn FnOnce() + Send + Sync + 'static>,
-) -> Result<Edn, String> {
-  if args.is_empty() {
-    return Err(format!("expected an option, got nothing: {:?}", args));
-  }
-  let options = parse_options(&args[0])?;
-  let server = Server::http(format!("{}:{}", options.host, options.port)).map_err(|error| error.to_string())?;
-  println!("Server started at {}:{}", options.host, options.port);
-
-  for mut request in server.incoming_requests() {
-    let info = request_to_edn(&mut request)?;
-    let result = handler(vec![info])?;
-    respond_to_request(request, parse_response(&result))?;
-  }
-
-  Ok(Edn::Nil)
 }
 
 fn parse_options(d: &Edn) -> Result<HttpServerOptions, String> {
