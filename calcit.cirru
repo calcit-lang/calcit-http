@@ -19,10 +19,11 @@
           :schema $ :: 'Fn
             {} (:return 'String)
               :args $ []
-        |serve-http! $ %{} 'CodeEntry (:doc "|Starts a native HTTP server through the Rust dylib. Params: options (nil or map with :port and :host), f (request handler receiving a request map and returning a response map). Returns: unit while server loop runs.")
+        |serve-http! $ %{} 'CodeEntry (:doc "|Starts a cancellable native HTTP server through the C-safe async FFI. Params: options (nil or map with :port, :host, and optional :response-timeout-ms), f (request map -> response map). Returns an opaque task capability accepted by &ffi-task-cancel.")
           :code $ quote
             defn serve-http! (options f)
-              &call-dylib-edn-fn (get-dylib-path |/dylibs/libcalcit_http) |serve_http options f
+              &call-dylib-edn-fn (get-dylib-path |/dylibs/libcalcit_http) |serve_http options $ fn (request response!)
+                &ffi-response-resolve response! $ f request
           :examples $ []
             quote $ serve-http!
               {} (:port 4000) (:host |0.0.0.0)
@@ -31,7 +32,7 @@
                   :headers $ {} (:content-type |application/json)
                   :body |ok
           :schema $ :: 'Fn
-            {} (:return 'Unit)
+            {} (:return 'AnyRef)
               :args $ [] 'Dynamic
                 :: 'Fn $ {} (:return 'Dynamic)
                   :args $ [] 'Dynamic
@@ -88,7 +89,7 @@
               do
                 assert= |calcit-http-native-ok $ native-smoke
                 println "|No tests..."
-                , nil
+                , &unit
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'Unit)
@@ -105,8 +106,10 @@
             defmacro get-dylib-ext () $ case-default (&get-os) |.so (:macos |.dylib) (:windows |.dll)
           :examples $ []
           :schema $ :: 'Macro
-            {} (:return 'String)
-              :args $ []
+            {}
+              :capabilities $ #{} :platform-read
+              :expansion $ :: 'Expr 'String
+              :required $ []
         |get-dylib-path $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn get-dylib-path (p)

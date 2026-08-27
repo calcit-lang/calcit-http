@@ -11,9 +11,9 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: calcit-lang/setup-calcit@v1
+      - uses: calcit-lang/setup-calcit@v1.3.0
         with:
           tools: calcit,caps
 
@@ -36,3 +36,6 @@ jobs:
       - run: rm -rfv dylibs/* && mkdir -p dylibs/ && ls target/release/ && cp -v target/release/*.* dylibs/
 
       - run: calcit calcit.cirru
+
+      - name: Verify async server response and cancellation
+        run: bash scripts/check-server-ffi.sh
