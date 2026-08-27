@@ -31,9 +31,24 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
+      - run: cargo fmt --check
+
+      - run: cargo test
+
+      - run: cargo clippy --all-targets -- -D warnings
+
       - run: cargo build --release
 
-      - run: rm -rfv dylibs/* && mkdir -p dylibs/ && ls target/release/ && cp -v target/release/*.* dylibs/
+      - name: Verify C-safe exports only
+        run: |
+          exports="$(nm -D --defined-only target/release/libcalcit_http.so)"
+          grep -q ' calcit_ffi_async_version$' <<<"$exports"
+          grep -q ' calcit_ffi_buffer_version$' <<<"$exports"
+          grep -q ' serve_http_calcit_ffi_async_v1$' <<<"$exports"
+          grep -q ' smoke_ping_calcit_ffi_v1$' <<<"$exports"
+          ! grep -Eq ' (abi_version|edn_version|serve_http|smoke_ping)$' <<<"$exports"
+
+      - run: rm -rfv dylibs/* && mkdir -p dylibs/ && cp -v target/release/libcalcit_http.so dylibs/
 
       - run: calcit calcit.cirru
 
