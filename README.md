@@ -10,7 +10,7 @@ APIs:
 
 ```cirru
 http.core/serve-http!
-  {} (:port 4000) (:host |0.0.0.0)
+  {} (:port 4000) (:host |0.0.0.0) (:response-timeout-ms 30000)
   fn (req) (on-request req)
 
 defn on-request (req)
@@ -25,6 +25,17 @@ The callback should return a response map with:
 - `:headers` - map of header name to string value
 - `:body` - response body string
 
+`serve-http!` returns an opaque native task capability. Stop the server with
+`&ffi-task-cancel`; cancellation is acknowledged only after the native server
+loop has stopped and emitted its terminal event. Each request owns an
+exactly-once response capability internally. If the handler does not resolve it
+within `:response-timeout-ms` (default 30 seconds), Calcit rejects it and the
+native binding returns an HTTP 500 response.
+
+Maintainers can run `bash scripts/check-server-ffi.sh` after copying the release
+dylib into `dylibs/`. The smoke performs a real request, resolves it, cancels
+the returned task capability, and requires the Calcit host to exit cleanly.
+
 Install with `caps add calcit-lang/http@<tag>` and run `caps`. The project-local
 `.calcit/modules/` view points at the versioned global module store. Compile and provide
 the matching `*.{dylib,so,dll}` file with `./build.sh`.
@@ -36,7 +47,7 @@ This module uses the RFC Q1 ratchet: CI runs Calcit's native
 baseline is intentionally limited to the native request/response callback ABI;
 it must not grow without an explicit review. Calcit is installed from the
 project's `deps.cirru` through
-[`calcit-lang/setup-calcit@v1`](https://github.com/calcit-lang/setup-calcit).
+[`calcit-lang/setup-calcit@v1.3.0`](https://github.com/calcit-lang/setup-calcit/releases/tag/v1.3.0).
 
 The same CI is also Q3 evidence: it builds the Rust dylib, copies the actual
 artifact into `dylibs/`, and executes the Calcit entry that loads it. Static
