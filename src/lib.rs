@@ -163,6 +163,7 @@ unsafe extern "C" fn resolve_http_response(
 fn publish_http_request(
   host: CalcitFfiAsyncHostV1,
   task: CalcitFfiAsyncTaskV1,
+  control: &ServerControl,
   timeout_ms: u64,
   mut request: tiny_http::Request,
 ) -> Result<(), String> {
@@ -191,10 +192,15 @@ fn publish_http_request(
       "Calcit host failed to open an HTTP response capability with status {status}"
     ));
   }
-  let status = enqueue_with_backpressure(host, task, ASYNC_EVENT_EMIT, response_handle, &payload);
+  let status = enqueue_with_backpressure_until(host, task, ASYNC_EVENT_EMIT, response_handle, &payload, || {
+    !control.cancelled.load(Ordering::Acquire)
+  });
   if status != ASYNC_STATUS_OK {
     // The host owns the response context after open_response succeeds. Failing
     // the server task makes the host reject and release that capability.
+    if control.cancelled.load(Ordering::Acquire) && matches!(status, ASYNC_STATUS_HANDLE_CLOSING | ASYNC_STATUS_HANDLE_FINISHED) {
+      return Ok(());
+    }
     return Err(format!("Calcit host failed to enqueue an HTTP request with status {status}"));
   }
   Ok(())
@@ -211,7 +217,7 @@ fn run_http_server(
   println!("Server started at {address}");
   while !control.cancelled.load(Ordering::Acquire) {
     match server.recv_timeout(Duration::from_millis(50)) {
-      Ok(Some(request)) => publish_http_request(host, task, options.response_timeout_ms, request)?,
+      Ok(Some(request)) => publish_http_request(host, task, control.as_ref(), options.response_timeout_ms, request)?,
       Ok(None) => {}
       Err(error) => return Err(format!("HTTP server receive failed: {error}")),
     }

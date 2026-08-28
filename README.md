@@ -48,6 +48,15 @@ C-safe buffer, async descriptors, Cirru EDN adapters, and backpressure
 transport. HTTP request/response capabilities, the server registry, and
 cancellation ordering remain owned by this repository.
 
+HTTP request `emit` 在等待 host queue 时会检查 server cancel，最长 10ms 响应；
+持续 `QUEUE_FULL` 默认 5 秒后失败。取消或失败后的 terminal 事件仍独立发布，
+由 host exactly-once reject/release 已打开的 response capabilities。
+
+HTTP request `emit` observes server cancellation while waiting for host queue
+capacity, with at most 10ms between checks; persistent `QUEUE_FULL` fails after
+the default five-second deadline. Terminal publication remains independent so
+the host can reject and release opened response capabilities exactly once.
+
 Install with `caps add calcit-lang/http@<tag>` and run `caps`. The project-local
 `.calcit/modules/` view points at the versioned global module store. Compile and provide
 the matching `*.{dylib,so,dll}` file with `./build.sh`.
