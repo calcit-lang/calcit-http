@@ -1,8 +1,7 @@
-use std::time::Duration;
-
 pub use calcit_native_ffi::{CalcitFfiAsyncHostV1, CalcitFfiAsyncTaskV1, decode_request, encode_callback_args, encode_failure};
 
 pub const ASYNC_STATUS_OK: i32 = calcit_native_ffi::status::OK;
+pub const ASYNC_STATUS_HANDLE_CLOSING: i32 = calcit_native_ffi::status::HANDLE_CLOSING;
 pub const ASYNC_STATUS_HANDLE_FINISHED: i32 = calcit_native_ffi::status::HANDLE_FINISHED;
 pub const ASYNC_STATUS_INVALID_PAYLOAD: i32 = calcit_native_ffi::status::INVALID_PAYLOAD;
 pub const ASYNC_STATUS_INTERNAL_ERROR: i32 = calcit_native_ffi::status::INTERNAL_ERROR;
@@ -37,6 +36,28 @@ pub fn enqueue_with_backpressure(
     kind,
     response_handle,
     payload,
-    calcit_native_ffi::BackpressurePolicy::unbounded(Duration::from_millis(1)),
+    calcit_native_ffi::BackpressurePolicy::default(),
+  )
+}
+
+pub fn enqueue_with_backpressure_until<F>(
+  host: CalcitFfiAsyncHostV1,
+  task: CalcitFfiAsyncTaskV1,
+  kind: u32,
+  response_handle: u64,
+  payload: &[u8],
+  should_continue: F,
+) -> i32
+where
+  F: FnMut() -> bool,
+{
+  calcit_native_ffi::enqueue_with_backpressure_until(
+    host,
+    task,
+    kind,
+    response_handle,
+    payload,
+    calcit_native_ffi::BackpressurePolicy::default(),
+    should_continue,
   )
 }
