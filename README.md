@@ -8,15 +8,13 @@ The native server passes a request map into your callback and expects a response
 
 APIs:
 
-```cirru
+```cirru.no-run
 http.core/serve-http!
   {} (:port 4000) (:host |0.0.0.0) (:response-timeout-ms 30000)
-  fn (req) (on-request req)
-
-defn on-request (req)
-  {} (:code 200)
-    :headers $ {} (:content-type |application/json)
-    :body "|some content"
+  fn (req)
+    {} (:code 200)
+      :headers $ {} (:content-type |application/json)
+      :body "|some content"
 ```
 
 The callback should return a response map with:
@@ -25,8 +23,8 @@ The callback should return a response map with:
 - `:headers` - map of header name to string value
 - `:body` - response body string
 
-`serve-http!` returns an opaque native task capability. Stop the server with
-`&ffi-task-cancel`; cancellation is acknowledged only after the native server
+`serve-http!` returns a typed `FfiTask`. Stop the server with `.cancel` or
+`.cancel-with`; cancellation is acknowledged only after the native server
 loop has stopped and emitted its terminal event. Each request owns an
 exactly-once response capability internally. If the handler does not resolve it
 within `:response-timeout-ms` (default 30 seconds), Calcit rejects it and the

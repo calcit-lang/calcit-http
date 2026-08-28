@@ -20,11 +20,13 @@ calcit calcit.cirru eval --dep ./ -- 'ns app.main $ :require
 
 let
     task-ref $ atom &unit
-    task $ &call-dylib-edn-fn (get-dylib-path |/dylibs/libcalcit_http) |serve_http
+    task $ ffi:task $ &call-dylib-edn-fn (get-dylib-path |/dylibs/libcalcit_http) |serve_http
       {} (:host |127.0.0.1) (:port 18081) (:response-timeout-ms 5000)
       fn (request response!)
-        &ffi-response-resolve response! $ {} (:code 200) (:body |ffi-ok)
-        &ffi-task-cancel (deref task-ref) :smoke-complete
+        let
+            response $ ffi:response response!
+          response.resolve $ {} (:code 200) (:body |ffi-ok)
+        .cancel-with (deref task-ref) :smoke-complete
   reset! task-ref task
   , task' >"$smoke_log" 2>&1 &
 server_pid="$!"
