@@ -31,6 +31,9 @@ This repository provides the native HTTP binding used by Calcit projects. Keep t
   removed the Rust-layout fallback, so do not export Rust `Vec<Edn>` handlers,
   `abi_version`, or `edn_version` from the `cdylib`.
 - Rust 2024 exports use `#[unsafe(no_mangle)]`.
+- Shared ABI descriptors, validation, buffer ownership, EDN adapters, and
+  transport helpers come from `calcit_native_ffi`; keep only HTTP lifecycle
+  state and thin compatibility aliases in `src/ffi.rs`.
 - Preserve the request/response map keys documented in `README.md`.
 - `serve_http_calcit_ffi_async_v1` is a cancellable Server task with serialized
   request events and exactly-once response capabilities. Every accepted cancel

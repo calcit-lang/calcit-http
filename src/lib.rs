@@ -1,5 +1,8 @@
 mod ffi;
 
+calcit_native_ffi::export_buffer_abi_v1!();
+calcit_native_ffi::export_async_abi_v1!();
+
 use cirru_edn::{Edn, EdnMapView};
 use ffi::*;
 use std::collections::HashMap;
@@ -465,7 +468,7 @@ mod tests {
   use std::ptr;
 
   fn request_bytes(args: Vec<Edn>) -> Vec<u8> {
-    encode_edn(&Edn::List(cirru_edn::EdnListView(args))).expect("encode request")
+    calcit_native_ffi::encode_edn(&Edn::List(cirru_edn::EdnListView(args))).expect("encode request")
   }
 
   #[test]

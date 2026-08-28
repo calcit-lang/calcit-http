@@ -36,6 +36,18 @@ Maintainers can run `bash scripts/check-server-ffi.sh` after copying the release
 dylib into `dylibs/`. The smoke performs a real request, resolves it, cancels
 the returned task capability, and requires the Calcit host to exit cleanly.
 
+### 共享 FFI 基础层 / Shared FFI foundation
+
+本模块使用 [`calcit_native_ffi`](https://github.com/calcit-lang/calcit-native-ffi)
+维护 C-safe buffer、async descriptors、Cirru EDN adapter 和 backpressure
+transport。HTTP request/response capability、server registry 与取消顺序仍由本仓库维护。
+
+This module uses
+[`calcit_native_ffi`](https://github.com/calcit-lang/calcit-native-ffi) for the
+C-safe buffer, async descriptors, Cirru EDN adapters, and backpressure
+transport. HTTP request/response capabilities, the server registry, and
+cancellation ordering remain owned by this repository.
+
 Install with `caps add calcit-lang/http@<tag>` and run `caps`. The project-local
 `.calcit/modules/` view points at the versioned global module store. Compile and provide
 the matching `*.{dylib,so,dll}` file with `./build.sh`.
