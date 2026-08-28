@@ -49,17 +49,7 @@ fn smoke_ping(args: Vec<Edn>) -> Result<Edn, String> {
   Ok(Edn::str("calcit-http-native-ok"))
 }
 
-/// Run the side-effect-free native probe through buffer protocol v1.
-///
-/// # Safety
-///
-/// Request bytes must remain readable and `output` writable for this call.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn smoke_ping_calcit_ffi_v1(request_ptr: *const u8, request_len: usize, output: *mut CalcitFfiBuffer) -> i32 {
-  // SAFETY: the exported buffer adapter validates and copies all call-scoped
-  // inputs before returning.
-  unsafe { run_buffer_adapter(request_ptr, request_len, output, smoke_ping) }
-}
+calcit_native_ffi::export_edn_buffer_method_v1!(smoke_ping_calcit_ffi_v1, smoke_ping);
 
 fn register_server_control() -> Result<(u64, Arc<ServerControl>), String> {
   let control = Arc::new(ServerControl {
@@ -465,6 +455,7 @@ fn parse_response(info: &Edn) -> Result<ResponseSkeleton, String> {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use calcit_native_ffi::CalcitFfiBuffer;
   use std::ptr;
 
   fn request_bytes(args: Vec<Edn>) -> Vec<u8> {
