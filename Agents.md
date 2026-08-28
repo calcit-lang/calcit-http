@@ -26,11 +26,10 @@ This repository provides the native HTTP binding used by Calcit projects. Keep t
 ### Rust and FFI contracts
 
 - Keep `cirru_edn = "0.8.0"` and `cirru_parser = "0.2.8"` compatible with the current Calcit runtime.
-- Prefer the versioned C-safe ABIs. Synchronous methods use buffer protocol v1;
-  callback methods use async protocol v1. Keep legacy Rust symbols only as
-  per-method migration fallbacks until Calcit removes fallback support.
-- Export `abi_version() -> String` and `edn_version() -> String` while the
-  legacy fallback remains; the latter returns `cirru_edn::version().to_string()`.
+- Use the versioned C-safe ABIs exclusively. Synchronous methods use buffer
+  protocol v1; callback and Server methods use async protocol v1. Calcit 0.13.57
+  removed the Rust-layout fallback, so do not export Rust `Vec<Edn>` handlers,
+  `abi_version`, or `edn_version` from the `cdylib`.
 - Rust 2024 exports use `#[unsafe(no_mangle)]`.
 - Preserve the request/response map keys documented in `README.md`.
 - `serve_http_calcit_ffi_async_v1` is a cancellable Server task with serialized
