@@ -10,16 +10,16 @@
       :modules $ []
       :type-slots $ {}
   :files $ {}
-    |http.core $ %{} 'FileEntry
+    'http.core $ %{} 'FileEntry
       :defs $ {}
-        |native-smoke $ %{} 'CodeEntry (:doc "|Internal native ABI smoke probe used by this module test entry. It loads the HTTP dylib and returns a stable token.")
+        'native-smoke $ %{} 'CodeEntry (:doc "|Internal native ABI smoke probe used by this module test entry. It loads the HTTP dylib and returns a stable token.")
           :code $ quote
             defn native-smoke () $ &call-dylib-edn (get-dylib-path |/dylibs/libcalcit_http) |smoke_ping
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'String)
               :args $ []
-        |serve-http! $ %{} 'CodeEntry (:doc "|Starts a cancellable native HTTP server through the C-safe async FFI. Params: options (nil or map with :port, :host, and optional :response-timeout-ms), f (request map -> response map). Returns FfiTask; cancel it with .cancel or .cancel-with.")
+        'serve-http! $ %{} 'CodeEntry (:doc "|Starts a cancellable native HTTP server through the C-safe async FFI. Params: options (nil or map with :port, :host, and optional :response-timeout-ms), f (request map -> response map). Returns FfiTask; cancel it with .cancel or .cancel-with.")
           :code $ quote
             defn serve-http! (options f)
               ffi:task $ &call-dylib-edn-fn (get-dylib-path |/dylibs/libcalcit_http) |serve_http options
@@ -44,9 +44,9 @@
           ns http.core $ :require
             http.$meta :refer $ calcit-dirname
             http.util :refer $ get-dylib-path
-    |http.test $ %{} 'FileEntry
+    'http.test $ %{} 'FileEntry
       :defs $ {}
-        |demo-server! $ %{} 'CodeEntry (:doc |)
+        'demo-server! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn demo-server! () $ serve-http!
               {} $ :port 4000
@@ -55,21 +55,21 @@
           :schema $ :: 'Fn
             {} (:return 'Unit)
               :args $ []
-        |main! $ %{} 'CodeEntry (:doc |)
+        'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn main! () $ run-tests
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'Unit)
               :args $ []
-        |mid-call $ %{} 'CodeEntry (:doc |)
+        'mid-call $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn mid-call () $ println "|Calling internal function"
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'Unit)
               :args $ []
-        |on-request $ %{} 'CodeEntry (:doc |)
+        'on-request $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn on-request (req) (; println "|Handling request:" req) (; mid-call)
               {} (:status :ok) (:code 200)
@@ -79,14 +79,14 @@
           :schema $ :: 'Fn
             {} (:return 'Dynamic)
               :args $ [] 'Dynamic
-        |reload! $ %{} 'CodeEntry (:doc |)
+        'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn reload! () $ println |Reload
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'Unit)
               :args $ []
-        |run-tests $ %{} 'CodeEntry (:doc |)
+        'run-tests $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn run-tests () (println "|%%%% test for lib") (println calcit-filename calcit-dirname)
               do
@@ -102,9 +102,9 @@
           ns http.test $ :require
             http.core :refer $ serve-http! native-smoke
             http.$meta :refer $ calcit-dirname calcit-filename
-    |http.util $ %{} 'FileEntry
+    'http.util $ %{} 'FileEntry
       :defs $ {}
-        |get-dylib-ext $ %{} 'CodeEntry (:doc |)
+        'get-dylib-ext $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defmacro get-dylib-ext () $ case-default (&get-os) |.so (:macos |.dylib) (:windows |.dll)
           :examples $ []
@@ -113,7 +113,7 @@
               :capabilities $ #{} :platform-read
               :expansion $ :: 'Expr 'String
               :required $ []
-        |get-dylib-path $ %{} 'CodeEntry (:doc |)
+        'get-dylib-path $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn get-dylib-path (p)
               str (or-current-path calcit-dirname) p $ get-dylib-ext
@@ -121,7 +121,7 @@
           :schema $ :: 'Fn
             {} (:return 'String)
               :args $ [] 'String
-        |or-current-path $ %{} 'CodeEntry (:doc |)
+        'or-current-path $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn or-current-path (p)
               if (blank? p) |. p
