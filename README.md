@@ -50,10 +50,16 @@ HTTP request `emit` 在等待 host queue 时会检查 server cancel，最长 10m
 持续 `QUEUE_FULL` 默认 5 秒后失败。取消或失败后的 terminal 事件仍独立发布，
 由 host exactly-once reject/release 已打开的 response capabilities。
 
+要求 Calcit `0.13.60` 或更高版本，以便取消时也会清理已经排队的 request
+事件，同时不丢弃 server terminal 事件。
+
 HTTP request `emit` observes server cancellation while waiting for host queue
 capacity, with at most 10ms between checks; persistent `QUEUE_FULL` fails after
 the default five-second deadline. Terminal publication remains independent so
 the host can reject and release opened response capabilities exactly once.
+
+Calcit `0.13.60` or newer is required so cancellation also purges already
+queued request events without discarding the server's terminal event.
 
 Install with `caps add calcit-lang/http@<tag>` and run `caps`. The project-local
 `.calcit/modules/` view points at the versioned global module store. Compile and provide
