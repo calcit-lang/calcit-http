@@ -83,6 +83,10 @@ test.
 
 https://github.com/calcit-lang/dylib-workflow
 
+For request/response capability and cancellation guidance, use
+`calcit docs read "HTTP server response capabilities" --module calcit-http`
+after installation.
+
 ### License
 
 MIT
