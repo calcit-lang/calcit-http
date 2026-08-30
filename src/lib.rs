@@ -461,8 +461,219 @@ fn parse_response(info: &Edn) -> Result<ResponseSkeleton, String> {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use calcit_native_ffi::CalcitFfiBuffer;
+  use calcit_native_ffi::{AsyncResponseResolve, AsyncTaskCancel, CalcitFfiBuffer};
+  use std::io::{Read, Write};
+  use std::net::{Shutdown, TcpListener, TcpStream};
   use std::ptr;
+  use std::sync::Condvar;
+  use std::sync::atomic::AtomicUsize;
+  use std::thread;
+  use std::time::{Duration, Instant};
+
+  struct QueueFullHost {
+    configured: Mutex<Option<(u64, AsyncTaskCancel)>>,
+    configured_ready: Condvar,
+    response: Mutex<Option<(u64, u64, AsyncResponseResolve)>>,
+    response_opens: AtomicUsize,
+    response_resolutions: AtomicUsize,
+    response_status: AtomicU64,
+    emit_attempts: AtomicUsize,
+    emit_seen: Mutex<bool>,
+    emit_ready: Condvar,
+    terminal_kinds: Mutex<Vec<u32>>,
+    finished: Mutex<bool>,
+    finished_ready: Condvar,
+  }
+
+  impl QueueFullHost {
+    fn new() -> Self {
+      Self {
+        configured: Mutex::new(None),
+        configured_ready: Condvar::new(),
+        response: Mutex::new(None),
+        response_opens: AtomicUsize::new(0),
+        response_resolutions: AtomicUsize::new(0),
+        response_status: AtomicU64::new(u64::MAX),
+        emit_attempts: AtomicUsize::new(0),
+        emit_seen: Mutex::new(false),
+        emit_ready: Condvar::new(),
+        terminal_kinds: Mutex::new(Vec::new()),
+        finished: Mutex::new(false),
+        finished_ready: Condvar::new(),
+      }
+    }
+
+    fn wait_for_configuration(&self) -> (u64, AsyncTaskCancel) {
+      let configured = self.configured.lock().expect("configuration lock");
+      let (configured, timeout) = self
+        .configured_ready
+        .wait_timeout_while(configured, Duration::from_secs(2), |value| value.is_none())
+        .expect("wait for configuration");
+      assert!(!timeout.timed_out(), "server task was not configured");
+      configured.expect("configured callback")
+    }
+
+    fn wait_for_queue_full(&self) {
+      let emit_seen = self.emit_seen.lock().expect("emit lock");
+      let (emit_seen, timeout) = self
+        .emit_ready
+        .wait_timeout_while(emit_seen, Duration::from_secs(2), |value| !*value)
+        .expect("wait for queue-full emit");
+      assert!(!timeout.timed_out(), "HTTP request never reached the saturated host queue");
+      assert!(*emit_seen);
+    }
+
+    fn wait_for_terminal(&self) {
+      let finished = self.finished.lock().expect("finished lock");
+      let (finished, timeout) = self
+        .finished_ready
+        .wait_timeout_while(finished, Duration::from_secs(2), |value| !*value)
+        .expect("wait for terminal event");
+      assert!(!timeout.timed_out(), "cancelled HTTP server did not publish a terminal event");
+      assert!(*finished);
+    }
+  }
+
+  unsafe fn queue_full_host(context: u64) -> &'static QueueFullHost {
+    // SAFETY: each test keeps the boxed host state alive until the detached
+    // server worker publishes its terminal event and removes its registry ID.
+    unsafe { &*(context as *const QueueFullHost) }
+  }
+
+  unsafe extern "C" fn queue_full_enqueue(
+    context: u64,
+    _task_handle: u64,
+    kind: u32,
+    _response_handle: u64,
+    _payload_ptr: *const u8,
+    _payload_len: usize,
+  ) -> i32 {
+    let host = unsafe { queue_full_host(context) };
+    if kind == ASYNC_EVENT_EMIT {
+      host.emit_attempts.fetch_add(1, Ordering::AcqRel);
+      if let Ok(mut emit_seen) = host.emit_seen.lock() {
+        *emit_seen = true;
+        host.emit_ready.notify_all();
+      }
+      return calcit_native_ffi::status::QUEUE_FULL;
+    }
+    if kind != ASYNC_EVENT_COMPLETE && kind != ASYNC_EVENT_FAIL {
+      return ASYNC_STATUS_INVALID_PAYLOAD;
+    }
+    let response = match host.response.lock() {
+      Ok(mut response) => response.take(),
+      Err(_) => return ASYNC_STATUS_INTERNAL_ERROR,
+    };
+    if let Some((response_context, response_handle, resolve)) = response {
+      let reason = b"|server-cancelled";
+      let status = unsafe {
+        resolve(
+          response_context,
+          response_handle,
+          calcit_native_ffi::response_outcome::REJECT,
+          reason.as_ptr(),
+          reason.len(),
+        )
+      };
+      host.response_resolutions.fetch_add(1, Ordering::AcqRel);
+      host.response_status.store(status as u64, Ordering::Release);
+    }
+    if let Ok(mut terminal_kinds) = host.terminal_kinds.lock() {
+      terminal_kinds.push(kind);
+    }
+    if let Ok(mut finished) = host.finished.lock() {
+      *finished = true;
+      host.finished_ready.notify_all();
+    }
+    ASYNC_STATUS_OK
+  }
+
+  unsafe extern "C" fn queue_full_configure(
+    context: u64,
+    _task_handle: u64,
+    kind: u32,
+    flags: u32,
+    task_context: u64,
+    cancel: Option<AsyncTaskCancel>,
+  ) -> i32 {
+    if kind != ASYNC_TASK_SERVER || flags != ASYNC_TASK_SERIAL_EVENTS | ASYNC_TASK_REQUIRES_RESPONSE {
+      return ASYNC_STATUS_INVALID_PAYLOAD;
+    }
+    let Some(cancel) = cancel else {
+      return ASYNC_STATUS_INVALID_PAYLOAD;
+    };
+    let host = unsafe { queue_full_host(context) };
+    match host.configured.lock() {
+      Ok(mut configured) => {
+        *configured = Some((task_context, cancel));
+        host.configured_ready.notify_all();
+        ASYNC_STATUS_OK
+      }
+      Err(_) => ASYNC_STATUS_INTERNAL_ERROR,
+    }
+  }
+
+  unsafe extern "C" fn queue_full_open_response(
+    context: u64,
+    _task_handle: u64,
+    response_context: u64,
+    _timeout_ms: u64,
+    resolve: Option<AsyncResponseResolve>,
+    response_handle: *mut u64,
+  ) -> i32 {
+    if response_handle.is_null() {
+      return ASYNC_STATUS_INVALID_PAYLOAD;
+    }
+    let Some(resolve) = resolve else {
+      return ASYNC_STATUS_INVALID_PAYLOAD;
+    };
+    let host = unsafe { queue_full_host(context) };
+    let handle = 9001;
+    match host.response.lock() {
+      Ok(mut response) => {
+        if response.is_some() {
+          return ASYNC_STATUS_INTERNAL_ERROR;
+        }
+        *response = Some((response_context, handle, resolve));
+        host.response_opens.fetch_add(1, Ordering::AcqRel);
+        unsafe { *response_handle = handle };
+        ASYNC_STATUS_OK
+      }
+      Err(_) => ASYNC_STATUS_INTERNAL_ERROR,
+    }
+  }
+
+  fn reserve_local_port() -> u16 {
+    TcpListener::bind("127.0.0.1:0")
+      .expect("reserve local port")
+      .local_addr()
+      .expect("reserved local address")
+      .port()
+  }
+
+  fn request_until_server_ready(port: u16) -> String {
+    let deadline = Instant::now() + Duration::from_secs(2);
+    let mut stream = loop {
+      match TcpStream::connect(("127.0.0.1", port)) {
+        Ok(stream) => break stream,
+        Err(error) if Instant::now() < deadline => {
+          thread::sleep(Duration::from_millis(5));
+          let _ = error;
+        }
+        Err(error) => panic!("failed to connect to test HTTP server: {error}"),
+      }
+    };
+    stream
+      .set_read_timeout(Some(Duration::from_secs(2)))
+      .expect("set client read timeout");
+    stream
+      .write_all(b"GET /queue-full HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n")
+      .expect("send HTTP request");
+    stream.shutdown(Shutdown::Write).expect("finish HTTP request");
+    let mut response = String::new();
+    stream.read_to_string(&mut response).expect("read rejected HTTP response");
+    response
+  }
 
   fn request_bytes(args: Vec<Edn>) -> Vec<u8> {
     calcit_native_ffi::encode_edn(&Edn::List(cirru_edn::EdnListView(args))).expect("encode request")
@@ -528,5 +739,58 @@ mod tests {
       unsafe { cancel_http_server(context, 7, ptr::null(), 0) },
       ASYNC_STATUS_HANDLE_FINISHED
     );
+  }
+
+  #[test]
+  fn cancel_during_queue_full_rejects_one_response_and_completes_once() {
+    let port = reserve_local_port();
+    let options = Edn::map_from_iter([
+      (Edn::tag("host"), Edn::str("127.0.0.1")),
+      (Edn::tag("port"), Edn::Number(f64::from(port))),
+      (Edn::tag("response-timeout-ms"), Edn::Number(5_000.0)),
+    ]);
+    let request = request_bytes(vec![options]);
+    let task = CalcitFfiAsyncTaskV1::new(77, calcit_native_ffi::task_kind::ONE_SHOT, 0);
+    let host_state = Box::new(QueueFullHost::new());
+    let host = CalcitFfiAsyncHostV1::new(
+      (&*host_state as *const QueueFullHost) as u64,
+      queue_full_enqueue,
+      queue_full_configure,
+      queue_full_open_response,
+    );
+
+    assert_eq!(
+      unsafe { start_http_server_async_v1(request.as_ptr(), request.len(), &task, &host) },
+      ASYNC_STATUS_OK
+    );
+    let (task_context, cancel) = host_state.wait_for_configuration();
+    let client = thread::spawn(move || request_until_server_ready(port));
+    host_state.wait_for_queue_full();
+    assert_eq!(unsafe { cancel(task_context, task.handle, ptr::null(), 0) }, ASYNC_STATUS_OK);
+    host_state.wait_for_terminal();
+
+    let response = client.join().expect("HTTP client thread");
+    assert!(response.starts_with("HTTP/1.1 500"), "unexpected response: {response}");
+    assert!(response.contains("HTTP request rejected by Calcit"));
+    assert!(host_state.emit_attempts.load(Ordering::Acquire) >= 1);
+    assert_eq!(host_state.response_opens.load(Ordering::Acquire), 1);
+    assert_eq!(host_state.response_resolutions.load(Ordering::Acquire), 1);
+    assert_eq!(host_state.response_status.load(Ordering::Acquire), ASYNC_STATUS_OK as u64);
+    assert_eq!(
+      host_state.terminal_kinds.lock().expect("terminal kinds").as_slice(),
+      &[ASYNC_EVENT_COMPLETE]
+    );
+    assert!(host_state.response.lock().expect("response registry").is_none());
+
+    let deadline = Instant::now() + Duration::from_secs(1);
+    loop {
+      let status = unsafe { cancel(task_context, task.handle, ptr::null(), 0) };
+      if status == ASYNC_STATUS_HANDLE_FINISHED {
+        break;
+      }
+      assert_eq!(status, ASYNC_STATUS_OK);
+      assert!(Instant::now() < deadline, "server control registry was not removed");
+      thread::sleep(Duration::from_millis(1));
+    }
   }
 }
