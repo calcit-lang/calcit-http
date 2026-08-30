@@ -41,7 +41,8 @@ Requests expose method, URL/path, query, headers, and body fields. Responses use
 - Keep the returned server task until shutdown and cancel it deliberately.
 - Never retain request response capabilities in durable application state.
 - Bound application work below the response timeout and map failures to explicit HTTP responses.
-- Cancellation stops the listener and queued request events while preserving terminal cleanup.
+- Cancellation stops the listener and interrupts request-event delivery even while the host queue is full.
+- After cancellation, the server still publishes one terminal event; the host uses it to reject and release every unresolved response capability exactly once.
 - Put authentication, routing, schema validation, and database transactions in application code.
 
 For realtime applications, use HTTP for snapshots, health, or administrative capabilities while WebSocket carries revisioned incremental messages.
