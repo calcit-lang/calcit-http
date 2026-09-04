@@ -53,7 +53,7 @@
               fn (req) (on-request req)
           :examples $ []
           :schema $ :: 'Fn
-            {} (:return 'Unit)
+            {} (:return 'FfiTask)
               :args $ []
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote
