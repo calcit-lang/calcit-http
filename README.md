@@ -72,7 +72,7 @@ This module uses the RFC Q1 ratchet: CI runs Calcit's native
 baseline is intentionally limited to the native request/response callback ABI;
 it must not grow without an explicit review. Calcit is installed from the
 project's `deps.cirru` through
-[`calcit-lang/setup-calcit@v1.3.0`](https://github.com/calcit-lang/setup-calcit/releases/tag/v1.3.0).
+[`calcit-lang/setup-calcit@v1`](https://github.com/calcit-lang/setup-calcit).
 
 The same CI is also Q3 evidence: it builds the Rust dylib, copies the actual
 artifact into `dylibs/`, and executes the Calcit entry that loads it. Static
