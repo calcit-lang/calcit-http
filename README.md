@@ -68,7 +68,7 @@ the matching `*.{dylib,so,dll}` file with `./build.sh`.
 ### Quality and runtime contracts
 
 This module uses the RFC Q1 ratchet: CI runs Calcit's native
-`analyze quality --baseline config/calcit-quality.json` gate. The reviewed
+`analyze quality --baseline config/calcit-quality.cirru` gate. The reviewed
 baseline is intentionally limited to the native request/response callback ABI;
 it must not grow without an explicit review. Calcit is installed from the
 project's `deps.cirru` through
