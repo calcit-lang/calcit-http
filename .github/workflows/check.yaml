@@ -23,7 +23,10 @@ jobs:
           calcit calcit.cirru edit format
           git diff --exit-code -- calcit.cirru
           calcit calcit.cirru --check-only
-          calcit calcit.cirru analyze quality --baseline config/calcit-quality.json --format json
+          calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
+          calcit calcit.cirru analyze dynamic-methods --max 0
+          calcit calcit.cirru docs format-md README.md --check
+          calcit calcit.cirru docs check-md README.md --failures-only
 
       - uses: dtolnay/rust-toolchain@stable
         with:

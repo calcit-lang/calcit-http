@@ -39,6 +39,7 @@
               :args $ [] 'Dynamic
                 :: 'Fn $ {} (:return 'Dynamic)
                   :args $ [] 'Dynamic
+              :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote
           ns http.core $ :require
@@ -79,6 +80,7 @@
           :schema $ :: 'Fn
             {} (:return 'Dynamic)
               :args $ [] 'Dynamic
+              :features $ #{} :js-ffi
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn reload! () $ println |Reload
@@ -90,7 +92,7 @@
           :code $ quote
             defn run-tests () (println "|%%%% test for lib") (println calcit-filename calcit-dirname)
               do
-                assert= |calcit-http-native-ok $ native-smoke
+                assert |native-smoke-must-match $ = |calcit-http-native-ok (native-smoke)
                 println "|No tests..."
                 , &unit
           :examples $ []
