@@ -6,6 +6,9 @@ on:
 
 name: Test
 
+permissions:
+  contents: read
+
 jobs:
   build_and_test:
     name: Test
@@ -20,6 +23,7 @@ jobs:
       - name: Validate Calcit snapshot and types
         run: |
           caps --ci
+          caps verify --toolchain
           calcit calcit.cirru edit format
           git diff --exit-code -- calcit.cirru
           calcit calcit.cirru --check-only
