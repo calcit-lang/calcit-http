@@ -35,7 +35,7 @@ server_pid="$!"
 
 response=""
 for _ in {1..50}; do
-  if response="$(curl --fail --silent --max-time 1 'http://127.0.0.1:18081/ffi-smoke?x=1')"; then
+  if response="$(curl --noproxy '*' --fail --silent --max-time 1 'http://127.0.0.1:18081/ffi-smoke?x=1')"; then
     break
   fi
   sleep 0.1

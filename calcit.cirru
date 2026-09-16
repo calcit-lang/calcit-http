@@ -35,7 +35,7 @@
                 {} (:code 200)
                   :headers $ {} $ :content-type |application/json
                   :body |ok
-          :schema $ :: 'Fn $ {} (:return 'FfiTask)
+          :schema $ :: 'Fn $ {} (:return 'calcit.core/FfiTask)
             :args $ [] 'Dynamic $ :: 'Fn
               {} (:return 'Dynamic)
                 :args $ [] 'Dynamic
@@ -53,7 +53,7 @@
               {} $ :port 4000
               fn (req) (on-request req)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'FfiTask)
+          :schema $ :: 'Fn $ {} (:return 'calcit.core/FfiTask)
             :args $ []
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (run-tests)
@@ -81,10 +81,9 @@
             :args $ []
         'run-tests $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn run-tests () (println "|%%%% test for lib") (println calcit-filename calcit-dirname)
-            do
-              assert |native-smoke-must-match $ = |calcit-http-native-ok $ native-smoke
-              println "|No tests..."
-              , &unit
+            assert |native-smoke-must-match $ = |calcit-http-native-ok $ native-smoke
+            println "|No tests..."
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
