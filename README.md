@@ -10,8 +10,7 @@ APIs:
 
 ```cirru.no-run
 http.core/serve-http!
-  {} (:port 4000) (:host |0.0.0.0)
-    :response-timeout-ms 30000
+  {} (:port 4000) (:host |0.0.0.0) (:response-timeout-ms 30000)
   fn (req)
     {} (:code 200)
       :headers $ {} $ :content-type |application/json
