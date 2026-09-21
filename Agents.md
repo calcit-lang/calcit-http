@@ -48,7 +48,7 @@ caps --ci
 calcit calcit.cirru edit format
 git diff --exit-code -- calcit.cirru
 calcit calcit.cirru --check-only
-calcit calcit.cirru analyze quality --baseline config/calcit-quality.json --format json
+calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
 cargo build --release
 rm -rf dylibs/*
 mkdir -p dylibs
