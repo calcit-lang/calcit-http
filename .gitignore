@@ -13,5 +13,6 @@
 compact.cirru
 
 /dylibs/
+/js-out/
 
 .DS_Store
