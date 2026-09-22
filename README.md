@@ -60,7 +60,7 @@ the host can reject and release opened response capabilities exactly once.
 
 Calcit `0.13.60` or newer is required so cancellation also purges already
 queued request events without discarding the server's terminal event. Release
-`0.3.18` is validated against Calcit `0.17.1`.
+`0.3.19` is validated against Calcit `0.18.1`.
 
 Install with `caps add calcit-lang/http@<tag>` and run `caps`. The project-local
 `.calcit/modules/` view points at the versioned global module store. Compile and provide
