@@ -16,3 +16,7 @@ compact.cirru
 /js-out/
 
 .DS_Store
+dist
+.pnp.cjs
+.pnp.loader.mjs
+.yarn
