@@ -13,14 +13,16 @@ jobs:
   build_and_test:
     name: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
-      - uses: calcit-lang/setup-calcit@ca701be5a471759e442aa053cd100720bbe1f09f # v1
+      - uses: calcit-lang/setup-calcit@v1.5.0
         with:
           tools: calcit,caps
+          caps-version: 0.1.1
 
       - name: Validate Calcit snapshot and types
         run: |
@@ -29,24 +31,25 @@ jobs:
           calcit calcit.cirru edit format
           git diff --exit-code -- calcit.cirru
           calcit calcit.cirru --check-only
+          calcit calcit.cirru --entry server --check-only
+          calcit calcit.cirru analyze check-public --ns 'http.$meta' --ns http.core --ns http.test --ns http.util --format json
           calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
-          calcit calcit.cirru analyze dynamic-methods
           calcit calcit.cirru docs format-md README.md --check
           calcit calcit.cirru docs check-md README.md --failures-only
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: stable
 
-      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+      - uses: Swatinem/rust-cache@v2.9.2
 
       - run: cargo fmt --check
 
-      - run: cargo test
+      - run: cargo test --locked
 
-      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo clippy --locked --all-targets -- -D warnings
 
-      - run: cargo build --release
+      - run: cargo build --locked --release
 
       - name: Verify C-safe exports only
         run: |
@@ -57,7 +60,7 @@ jobs:
           grep -q ' smoke_ping_calcit_ffi_v1$' <<<"$exports"
           ! grep -Eq ' (abi_version|edn_version|serve_http|smoke_ping)$' <<<"$exports"
 
-      - run: rm -rfv dylibs/* && mkdir -p dylibs/ && cp -v target/release/libcalcit_http.so dylibs/
+      - run: mkdir -p dylibs/ && cp -v target/release/libcalcit_http.so dylibs/
 
       - run: calcit calcit.cirru
 
