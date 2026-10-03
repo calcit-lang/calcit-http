@@ -29,7 +29,7 @@ def server-task $ http.core/serve-http!
       :headers $ {} (:content-type |application/json)
       :body |{"ok":true}
 
-server-task.cancel-with :shutdown
+server-task.cancel-with! :shutdown
 ```
 
 ## Request and response contract

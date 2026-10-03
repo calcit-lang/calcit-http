@@ -23,8 +23,8 @@ The callback should return a response map with:
 - `:headers` - map of header name to string value
 - `:body` - response body string
 
-`serve-http!` returns a typed `FfiTask`. Stop the server with `.cancel` or
-`.cancel-with`; cancellation is acknowledged only after the native server
+`serve-http!` returns a typed `FfiTask`. Stop the server with `.cancel!` or
+`.cancel-with!`; cancellation is acknowledged only after the native server
 loop has stopped and emitted its terminal event. Each request owns an
 exactly-once response capability internally. If the handler does not resolve it
 within `:response-timeout-ms` (default 30 seconds), Calcit rejects it and the
@@ -60,9 +60,11 @@ the host can reject and release opened response capabilities exactly once.
 
 Calcit `0.13.60` or newer is required so cancellation also purges already
 queued request events without discarding the server's terminal event. Release
-`0.3.19` is validated against Calcit `0.18.1`.
+`0.3.19` was validated against Calcit `0.18.1`; this migration pins the project
+to the formal Calcit `0.28.0` release without changing the module version or ABI.
 
-Install with `caps add calcit-lang/http@<tag>` and run `caps`. The project-local
+Declare `calcit-lang/calcit-http` with a compatible published tag in your
+project's `deps.cirru` dependencies, then run `caps --ci`. The project-local
 `.calcit/modules/` view points at the versioned global module store. Compile and provide
 the matching `*.{dylib,so,dll}` file with `./build.sh`.
 
@@ -73,12 +75,21 @@ This module uses the RFC Q1 ratchet: CI runs Calcit's native
 baseline is intentionally limited to the native request/response callback ABI;
 it must not grow without an explicit review. Calcit is installed from the
 project's `deps.cirru` through
-[`calcit-lang/setup-calcit@v1`](https://github.com/calcit-lang/setup-calcit).
+[`calcit-lang/setup-calcit@v1.5.0`](https://github.com/calcit-lang/setup-calcit).
 
 The same CI is also Q3 evidence: it builds the Rust dylib, copies the actual
 artifact into `dylibs/`, and executes the Calcit entry that loads it. Static
 quality constrains the Calcit boundary, but does not replace this ABI/runtime
-test.
+test. CI checks both native entries and every local public namespace, retaining
+the original Rust tests and real request/response/cancellation smoke. Local
+validation does not run the listener or its network integration test; those
+remain required in CI. No frontend or COS deployment is involved.
+
+The separate proof-audit workflow still reports missing evidence in published
+core helpers such as `println` and `foldl-compare`; it is not claimed to pass.
+The existing strict entry/public gates and quality budget are not relaxed to
+hide this. Formal Action tags follow the maintainer policy, but can move;
+read-only permissions do not make their code immutable.
 
 ### Workflow
 

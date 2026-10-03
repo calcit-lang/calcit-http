@@ -3,11 +3,11 @@
   :about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `calcit query` to inspect and `calcit edit`/`calcit tree` to modify. Run `calcit docs agents --contract` before mutations; use `--full` for first orientation or changed contract digest. Manual edits must follow format and schema conventions, then run `calcit edit format`."
   :package |http
   :entries $ {}
-    :default $ {} (:description |) (:init-fn 'http.test/main!) (:mode :native) (:reload-fn 'http.test/reload!)
+    :default $ {} (:description |) (:init-fn 'http.test/main!) (:mode :native) (:reload-fn 'http.test/reload!) (:target :native)
       :feature-policy $ {}
       :modules $ []
       :type-slots $ {}
-    :server $ {} (:description |) (:init-fn 'http.test/demo-server!) (:mode :native) (:reload-fn 'http.test/reload!)
+    :server $ {} (:description |) (:init-fn 'http.test/demo-server!) (:mode :native) (:reload-fn 'http.test/reload!) (:target :native)
       :feature-policy $ {}
       :modules $ []
       :type-slots $ {}
@@ -22,12 +22,12 @@
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
         'serve-http! $ %{} 'CodeEntry
-          :doc "|Starts a cancellable native HTTP server through the C-safe async FFI. Params: options (nil or map with :port, :host, and optional :response-timeout-ms), f (request map -> response map). Returns FfiTask; cancel it with .cancel or .cancel-with."
+          :doc "|Starts a cancellable native HTTP server through the C-safe async FFI. Params: options (nil or map with :port, :host, and optional :response-timeout-ms), f (request map -> response map). Returns FfiTask; cancel it with .cancel! or .cancel-with!."
           :code $ quote $ defn serve-http! (options f)
             ffi:task $ &call-dylib-edn-fn (get-dylib-path |/dylibs/libcalcit_http) |serve_http options $ fn (request response!)
               let
                   response $ ffi:response response!
-                response.resolve $ f request
+                response.resolve! $ f request
           :examples $ [] $ quote
             serve-http!
               {} (:port 4000) (:host |0.0.0.0)
