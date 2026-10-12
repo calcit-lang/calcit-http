@@ -27,7 +27,7 @@
             ffi:task $ &call-dylib-edn-fn (get-dylib-path |/dylibs/libcalcit_http) |serve_http options $ fn (request response!)
               let
                   response $ ffi:response response!
-                response.resolve! $ f request
+                response.resolve! $ f $ decode-map-as request (:: 'Map 'Tag 'Dynamic)
           :examples $ [] $ quote
             serve-http!
               {} (:port 4000) (:host |0.0.0.0)
@@ -37,8 +37,9 @@
                   :body |ok
           :schema $ :: 'Fn $ {} (:return 'calcit.core/FfiTask)
             :args $ [] 'Dynamic $ :: 'Fn
-              {} (:return 'Dynamic)
-                :args $ [] 'Dynamic
+              {}
+                :args $ [] $ :: 'Map 'Tag 'Dynamic
+                :return $ :: 'Map 'Tag 'Dynamic
             :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns http.core
@@ -71,9 +72,10 @@
               :headers $ {} $ :content-type |application/json
               :body $ format-cirru-edn req
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Dynamic)
-            :args $ [] 'Dynamic
+          :schema $ :: 'Fn $ {}
+            :args $ [] $ :: 'Map 'Tag 'Dynamic
             :features $ #{} :js-ffi
+            :return $ :: 'Map 'Tag 'Dynamic
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! () (println |Reload)
           :examples $ []
@@ -96,7 +98,7 @@
       :defs $ {}
         'get-dylib-ext $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defmacro get-dylib-ext ()
-            case-default (&get-os) |.so (:macos |.dylib) (:windows |.dll)
+            match (&get-os) (:macos |.dylib) (:windows |.dll) (_ |.so)
           :examples $ []
           :schema $ :: 'Macro $ {}
             :capabilities $ #{} :platform-read

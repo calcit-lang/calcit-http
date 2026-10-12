@@ -60,8 +60,8 @@ the host can reject and release opened response capabilities exactly once.
 
 Calcit `0.13.60` or newer is required so cancellation also purges already
 queued request events without discarding the server's terminal event. Release
-`0.3.19` was validated against Calcit `0.18.1`; this migration pins the project
-to the formal Calcit `0.28.0` release without changing the module version or ABI.
+`0.3.21` targets released Calcit `0.29.0` without changing the native ABI or
+request/response wire format.
 
 Declare `calcit-lang/calcit-http` with a compatible published tag in your
 project's `deps.cirru` dependencies, then run `caps --ci`. The project-local
@@ -70,25 +70,20 @@ the matching `*.{dylib,so,dll}` file with `./build.sh`.
 
 ### Quality and runtime contracts
 
-This module uses the RFC Q1 ratchet: CI runs Calcit's native
-`analyze quality --baseline config/calcit-quality.cirru` gate. The reviewed
-baseline is intentionally limited to the native request/response callback ABI;
-it must not grow without an explicit review. Calcit is installed from the
-project's `deps.cirru` through
+CI runs default strict checks for both native entries and all public
+namespaces. The callback takes and returns `Map<Tag,Dynamic>`; raw native
+requests are decoded before entering the handler. Heterogeneous HTTP fields
+and the Rust-validated options remain explicit boundaries, not whole-Dynamic
+callback contracts. Calcit is installed from the project's `deps.cirru` through
 [`calcit-lang/setup-calcit@v1.5.0`](https://github.com/calcit-lang/setup-calcit).
 
-The same CI is also Q3 evidence: it builds the Rust dylib, copies the actual
-artifact into `dylibs/`, and executes the Calcit entry that loads it. Static
-quality constrains the Calcit boundary, but does not replace this ABI/runtime
-test. CI checks both native entries and every local public namespace, retaining
-the original Rust tests and real request/response/cancellation smoke. Local
-validation does not run the listener or its network integration test; those
-remain required in CI. No frontend or COS deployment is involved.
+CI also builds the Rust dylib, copies the actual artifact into `dylibs/`, and
+executes the Calcit entry that loads it. Strict checks do not replace this
+ABI/runtime test. The original Rust tests and real request/response/cancellation
+smoke remain required. Run `bash build.sh` before local native acceptance.
+No frontend or COS deployment is involved.
 
-The separate proof-audit workflow still reports missing evidence in published
-core helpers such as `println` and `foldl-compare`; it is not claimed to pass.
-The existing strict entry/public gates and quality budget are not relaxed to
-hide this. Formal Action tags follow the maintainer policy, but can move;
+Formal Action tags follow the maintainer policy, but can move;
 read-only permissions do not make their code immutable.
 
 ### Workflow
