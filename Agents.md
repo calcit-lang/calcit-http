@@ -48,11 +48,10 @@ caps --ci
 calcit calcit.cirru edit format
 git diff --exit-code -- calcit.cirru
 calcit calcit.cirru --check-only
-calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
-cargo build --release
-rm -rf dylibs/*
-mkdir -p dylibs
-cp target/release/*.* dylibs/
+calcit calcit.cirru --entry server --check-only
+calcit calcit.cirru --check-only --ns http.core --ns http.test --ns http.util --ns 'http.$meta'
+cargo test --locked
+bash build.sh
 calcit calcit.cirru
 bash scripts/check-server-ffi.sh
 ```
