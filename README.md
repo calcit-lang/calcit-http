@@ -60,7 +60,7 @@ the host can reject and release opened response capabilities exactly once.
 
 Calcit `0.13.60` or newer is required so cancellation also purges already
 queued request events without discarding the server's terminal event. Release
-`0.3.21` targets released Calcit `0.29.0` without changing the native ABI or
+`0.3.22` targets released Calcit `0.29.0` without changing the native ABI or
 request/response wire format.
 
 Declare `calcit-lang/calcit-http` with a compatible published tag in your
@@ -80,7 +80,9 @@ callback contracts. Calcit is installed from the project's `deps.cirru` through
 CI also builds the Rust dylib, copies the actual artifact into `dylibs/`, and
 executes the Calcit entry that loads it. Strict checks do not replace this
 ABI/runtime test. The original Rust tests and real request/response/cancellation
-smoke remain required. Run `bash build.sh` before local native acceptance.
+smoke remain required. Run `sh build.sh` before local native acceptance.
+The build entry is POSIX-compatible because Caps invokes it with `sh`;
+0.3.22 fixes the Bash-only `pipefail` startup failure on Linux.
 No frontend or COS deployment is involved.
 
 Formal Action tags follow the maintainer policy, but can move;

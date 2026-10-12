@@ -1,6 +1,6 @@
 
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
 cargo build --release --locked
 case "$(uname -s)" in
