@@ -57,5 +57,5 @@ bash scripts/check-server-ffi.sh
 ```
 
 For the `server` entry, verify a response with `curl http://127.0.0.1:4000/`,
-then cancel the returned `FfiTask` with `.cancel` or `.cancel-with`. Confirm that
+then cancel the returned `FfiTask` with `.cancel!` or `.cancel-with!`. Confirm that
 the dylib copied into `dylibs/` is the artifact just built.
