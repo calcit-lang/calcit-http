@@ -17,7 +17,9 @@
         'native-smoke $ %{} 'CodeEntry
           :doc "|Internal native ABI smoke probe used by this module test entry. It loads the HTTP dylib and returns a stable token."
           :code $ quote $ defn native-smoke ()
-            &call-dylib-edn (get-dylib-path |/dylibs/libcalcit_http) |smoke_ping
+            let
+                value $ &call-dylib-edn (get-dylib-path |/dylibs/libcalcit_http) |smoke_ping
+              if (string? value) value $ raise "|HTTP native smoke expected a String"
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
@@ -62,7 +64,7 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
         'mid-call $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn mid-call () (println "|Calling internal function")
+          :code $ quote $ defn mid-call () (println "|Calling internal function") &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -77,7 +79,7 @@
             :features $ #{} :js-ffi
             :return $ :: 'Map 'Tag 'Dynamic
         'reload! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn reload! () (println |Reload)
+          :code $ quote $ defn reload! () (println |Reload) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []

@@ -60,7 +60,7 @@ the host can reject and release opened response capabilities exactly once.
 
 Calcit `0.13.60` or newer is required so cancellation also purges already
 queued request events without discarding the server's terminal event. Release
-`0.3.22` targets released Calcit `0.29.0` without changing the native ABI or
+`0.3.23` targets released Calcit `0.29.3` without changing the native ABI or
 request/response wire format.
 
 Declare `calcit-lang/calcit-http` with a compatible published tag in your
