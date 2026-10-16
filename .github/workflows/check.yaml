@@ -22,6 +22,7 @@ jobs:
       - uses: calcit-lang/setup-calcit@v1.5.0
         with:
           tools: calcit,caps
+          deps-file: deps.cirru
           caps-version: 0.1.1
 
       - name: Validate Calcit snapshot and types
@@ -32,6 +33,7 @@ jobs:
           git diff --exit-code -- calcit.cirru
           calcit calcit.cirru --check-only
           calcit calcit.cirru --entry server --check-only
+          calcit calcit.cirru fix --workflow strict --verify --format json
           calcit calcit.cirru --check-only --ns 'http.$meta' --ns http.core --ns http.test --ns http.util --summary-only --format json
           calcit calcit.cirru docs format-md README.md --check
           calcit calcit.cirru docs check-md README.md --failures-only
