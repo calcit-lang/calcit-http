@@ -63,12 +63,16 @@ queued request events without discarding the server's terminal event. Release
 `0.3.23` targets released Calcit `0.29.3` without changing the native ABI or
 request/response wire format.
 
-当前源码候选对齐正式 Calcit 0.30.0，模块仍为 0.3.23；不修改 Snapshot、Rust、
+当前源码候选对齐 Calcit 0.30.1-alpha.5，模块仍为 0.3.23；不修改 Snapshot、Rust、
 Cargo 依赖/lock、请求/响应格式或 buffer/async protocol v1，不发版或部署。
-0.30.1 尚无正式版。额外完整 `fix --workflow strict --verify` 在原 0.29.3 下会
+正式 0.30.1 的跨平台 CLI/npm 配对发布尚未完整，因此固定已发布候选；本库仅运行
+native，没有 npm runtime 配对。额外完整 `fix --workflow strict --verify` 在原 0.29.3 下会
 复现 [calcit#2047](https://github.com/calcit-lang/calcit/issues/2047) 的 core
 `ffi-response:resolve` Unit 返回证明问题；正式 0.30.0 对照已通过这项审计。
 不以普通检查或运行 smoke 成功代替证明，也不添加返回强转或兼容代码绕过。
+本轮保留完整 strict、两个原入口及公开命名空间门禁，补充全部定义检查；原服务器
+集成脚本的局部状态使用首选 `ref` 替代兼容旧名 `atom`，不改变 Option/FfiTask 合同，
+不新增校验脚本、预算或编译器改写。
 
 Declare `calcit-lang/calcit-http` with a compatible published tag in your
 project's `deps.cirru` dependencies, then run `caps --ci`. The project-local
