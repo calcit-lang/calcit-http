@@ -19,7 +19,7 @@ calcit calcit.cirru eval --dep ./ -- 'ns app.main $ :require
   http.util :refer $ get-dylib-path
 
 let
-    task-ref $ atom $ assert-type (Option :none) $ :: '\''Option '\''FfiTask
+    task-ref $ ref $ assert-type (Option :none) $ :: '\''Option '\''FfiTask
     task $ ffi:task $ &call-dylib-edn-fn (get-dylib-path |/dylibs/libcalcit_http) |serve_http
       {} (:host |127.0.0.1) (:port 18081) (:response-timeout-ms 5000)
       fn (request response!)
