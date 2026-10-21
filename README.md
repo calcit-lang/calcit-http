@@ -2,6 +2,11 @@
 
 > Rust HTTP library for Calcit runtime.
 
+使用者注意：候选模块 **0.3.24** 配对正式 Calcit **0.30.1**，仅运行 native，
+没有 npm runtime 配对，也不承诺 JS/WASM 支持。请使用适合本机架构的动态库并
+重启原生进程。本次 Snapshot、Rust、Cargo 依赖/lock、API、请求响应与取消合同不变。
+版本号不表示已发布；完整验收和正式 tag 以 PR / Release 为准，不部署任何服务。
+
 The native server passes a request map into your callback and expects a response map back. Typical request keys include `:method`, `:url`, `:path`, `:querystring`, `:query`, `:headers`, and `:body` for non-GET requests.
 
 ### Usages
@@ -63,14 +68,15 @@ queued request events without discarding the server's terminal event. Release
 `0.3.23` targets released Calcit `0.29.3` without changing the native ABI or
 request/response wire format.
 
-当前源码候选对齐 Calcit 0.30.1-alpha.5，模块仍为 0.3.23；不修改 Snapshot、Rust、
-Cargo 依赖/lock、请求/响应格式或 buffer/async protocol v1，不发版或部署。
-正式 0.30.1 的跨平台 CLI/npm 配对发布尚未完整，因此固定已发布候选；本库仅运行
-native，没有 npm runtime 配对。额外完整 `fix --workflow strict --verify` 在原 0.29.3 下会
+当前源码候选从 alpha.5 对齐正式 Calcit 0.30.1，验收后发布模块 0.3.24；
+不修改 Snapshot、Rust、Cargo 依赖/lock、请求/响应格式或 buffer/async protocol v1。
+本库仅运行 native，没有 npm runtime 配对。本次结果需独立验证，不沿用旧 alpha
+验收冒充正式支持。完整 `fix --workflow strict --verify` 在原 0.29.3 下会
 复现 [calcit#2047](https://github.com/calcit-lang/calcit/issues/2047) 的 core
 `ffi-response:resolve` Unit 返回证明问题；正式 0.30.0 对照已通过这项审计。
-不以普通检查或运行 smoke 成功代替证明，也不添加返回强转或兼容代码绕过。
-本轮保留完整 strict、两个原入口及公开命名空间门禁，补充全部定义检查；原服务器
+不以普通检查或运行 smoke 成功代替完整 strict，也不添加返回强转或兼容代码绕过。
+本轮保留完整 strict、全部定义及 server 入口、公开命名空间门禁；全部定义检查
+已覆盖 default，不再重复跑其普通检查。以下局部状态迁移是既有源码：原服务器
 集成脚本的局部状态使用首选 `ref` 替代兼容旧名 `atom`，不改变 Option/FfiTask 合同，
 不新增校验脚本、预算或编译器改写。
 
