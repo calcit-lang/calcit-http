@@ -61,8 +61,6 @@ jobs:
           grep -q ' smoke_ping_calcit_ffi_v1$' <<<"$exports"
           ! grep -Eq ' (abi_version|edn_version|serve_http|smoke_ping)$' <<<"$exports"
 
-      - run: mkdir -p dylibs/ && cp -v target/release/libcalcit_http.so dylibs/
-
       - run: calcit calcit.cirru
 
       - name: Verify async server response and cancellation
