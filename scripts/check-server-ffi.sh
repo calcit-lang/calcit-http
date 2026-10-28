@@ -19,7 +19,7 @@ calcit calcit.cirru eval --dep ./ -- 'ns app.main $ :require
   http.util :refer $ get-dylib-path
 
 let
-    task-ref $ ref $ assert-type (Option :none) $ :: '\''Option '\''FfiTask
+    task-ref $ ref $ assert-type (Option :none) $ quote $ Option FfiTask
     task $ ffi:task $ &call-dylib-edn-fn (get-dylib-path |/dylibs/libcalcit_http) |serve_http
       {} (:host |127.0.0.1) (:port 18081) (:response-timeout-ms 5000)
       fn (request response!)
@@ -27,7 +27,7 @@ let
             response $ ffi:response response!
           response.resolve! $ {} (:code 200) (:body |ffi-ok)
         .map (deref task-ref) $ fn (server-task)
-          hint-fn $ {} (:return '\''Unit) (:args $ [] '\''FfiTask)
+          hint-fn $ Fn FfiTask (-> Unit)
           .cancel-with! server-task :smoke-complete
   reset! task-ref $ Option :some task
   , task' >"$smoke_log" 2>&1 &
