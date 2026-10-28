@@ -21,8 +21,7 @@
                 value $ &call-dylib-edn (get-dylib-path |/dylibs/libcalcit_http) |smoke_ping
               if (string? value) value $ raise "|HTTP native smoke expected a String"
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'String)
-            :args $ []
+          :schema $ quote $ Fn (-> String)
         'serve-http! $ %{} 'CodeEntry
           :doc "|Starts a cancellable native HTTP server through the C-safe async FFI. Params: options (nil or map with :port, :host, and optional :response-timeout-ms), f (request map -> response map). Returns FfiTask; cancel it with .cancel! or .cancel-with!."
           :code $ quote $ defn serve-http! (options f)
@@ -37,12 +36,11 @@
                 {} (:code 200)
                   :headers $ {} $ :content-type |application/json
                   :body |ok
-          :schema $ :: 'Fn $ {} (:return 'calcit.core/FfiTask)
-            :args $ [] 'Dynamic $ :: 'Fn
-              {}
-                :args $ [] $ :: 'Map 'Tag 'Dynamic
-                :return $ :: 'Map 'Tag 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Dynamic
+            Fn (Map Tag Dynamic)
+              -> $ Map Tag Dynamic
+            -> calcit.core/FfiTask
+            :features :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns http.core
           :require
@@ -56,41 +54,35 @@
               {} $ :port 4000
               fn (req) (on-request req)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'calcit.core/FfiTask)
-            :args $ []
+          :schema $ quote $ Fn (-> calcit.core/FfiTask)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (run-tests)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'mid-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn mid-call () (println "|Calling internal function") &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'on-request $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn on-request (req) (; println "|Handling request:" req) (; mid-call)
             {} (:status :ok) (:code 200)
               :headers $ {} $ :content-type |application/json
               :body $ format-cirru-edn req
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :args $ [] $ :: 'Map 'Tag 'Dynamic
-            :features $ #{} :js-ffi
-            :return $ :: 'Map 'Tag 'Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic)
+            -> $ Map Tag Dynamic
+            :features :js-ffi
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! () (println |Reload) &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
         'run-tests $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn run-tests () (println "|%%%% test for lib") (println calcit-filename calcit-dirname)
             assert |native-smoke-must-match $ = |calcit-http-native-ok $ native-smoke
             println "|No tests..."
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
+          :schema $ quote $ Fn (-> Unit)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns http.test
           :require
@@ -102,22 +94,19 @@
           :code $ quote $ defmacro get-dylib-ext ()
             match (&get-os) (:macos |.dylib) (:windows |.dll) (_ |.so)
           :examples $ []
-          :schema $ :: 'Macro $ {}
-            :capabilities $ #{} :platform-read
-            :expansion $ :: 'Expr 'String
-            :required $ []
+          :schema $ quote $ Macro
+            -> $ Expr String
+            :capabilities :platform-read
         'get-dylib-path $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn get-dylib-path (p)
             str (or-current-path calcit-dirname) p $ get-dylib-ext
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'String)
-            :args $ [] 'String
+          :schema $ quote $ Fn String (-> String)
         'or-current-path $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn or-current-path (p)
             if (blank? p) |. p
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'String)
-            :args $ [] 'String
+          :schema $ quote $ Fn String (-> String)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns http.util
           :require $ http.$meta :refer $ calcit-dirname calcit-filename
