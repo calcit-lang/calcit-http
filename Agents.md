@@ -21,7 +21,7 @@ This repository provides the native HTTP binding used by Calcit projects. Keep t
   calcit calcit.cirru --entry server
   ```
 
-- Use `calcit edit`/`calcit tree` for Snapshot edits. Run `calcit.cirru edit format` and inspect the diff before committing.
+- Use `calcit edit`/`calcit tree` for Snapshot edits. Run `calcit calcit.cirru edit format`, review definitions through `calcit query def`, and use a quiet Git diff for canonicality before committing.
 
 ### Rust and FFI contracts
 
@@ -44,9 +44,9 @@ This repository provides the native HTTP binding used by Calcit projects. Keep t
 Run the following after changing Rust or the Calcit boundary:
 
 ```bash
-caps --ci
+caps --strict --ci
 calcit calcit.cirru edit format
-git diff --exit-code -- calcit.cirru
+git diff --exit-code --quiet -- calcit.cirru
 calcit calcit.cirru --check-only
 calcit calcit.cirru --entry server --check-only
 calcit calcit.cirru --check-only --ns http.core --ns http.test --ns http.util --ns 'http.$meta'

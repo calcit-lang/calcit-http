@@ -30,7 +30,7 @@ jobs:
           caps --strict --ci
           caps verify --toolchain
           calcit calcit.cirru edit format
-          git diff --exit-code -- calcit.cirru
+          git diff --exit-code --quiet -- calcit.cirru
           calcit calcit.cirru --check-only --all-defs
           calcit calcit.cirru --entry server --check-only
           calcit calcit.cirru fix --workflow strict --verify --format json | jq -e 'if .data.workflow.status == "passed" and .diagnostics == [] then true else ., false end'
@@ -38,11 +38,11 @@ jobs:
           calcit calcit.cirru docs format-md README.md --check
           calcit calcit.cirru docs check-md README.md --failures-only
 
-      - uses: dtolnay/rust-toolchain@v1
+      - uses: actions-rust-lang/setup-rust-toolchain@v2.0.0
         with:
           toolchain: stable
-
-      - uses: Swatinem/rust-cache@v2.9.2
+          components: clippy,rustfmt
+          cache: false
 
       - run: cargo fmt --check
 
