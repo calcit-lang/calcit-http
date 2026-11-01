@@ -2,7 +2,7 @@
 
 > Rust HTTP library for Calcit runtime.
 
-使用者注意：候选模块 **0.3.27** 配对正式 Calcit **0.34.0**，仅运行 native，没有 npm runtime 或 JS/WASM 支持承诺。消费者须同步工具链并重新构建目标架构动态库，重启原生进程；仍使用0.32.0的消费者可保留正式0.3.26，旧tag不移动。此候选尚未发版；不部署服务。
+使用者注意：候选模块 **0.3.28** 配对正式 Calcit **0.34.0**，仅运行 native，没有 npm runtime 或 JS/WASM 支持承诺。消费者须同步工具链并重新构建目标架构动态库，重启原生进程；使用0.32.1的消费者可保留正式0.3.27，使用0.32.0的消费者可保留正式0.3.26，旧tag不移动。此候选尚未发版；不部署服务。
 
 官方 formatter 仅将 serve-http! 中 decode-map-as 的类型参数改为 `quote $ Map Tag Dynamic`；保留全部 11 个原定义和元数据，其余代码不变。Rust、Cargo依赖/lock及原HTTP smoke脚本保持。请求响应、Option/FfiTask与取消合同不变。复用精确正式Rust setup tag并保留原全部门禁，接受tag可移动风险；不新增verifier、基线或强转。
 
@@ -68,7 +68,7 @@ This module requires the exact Calcit `0.34.0` declared in deps.cirru.
 Cancellation purges queued request events without discarding the server's
 terminal event. The native ABI and request/response wire format remain unchanged.
 
-本轮对齐正式 Calcit 0.34.0，候选模块 0.3.27；保留 buffer/async protocol v1。
+本轮对齐正式 Calcit 0.34.0，候选模块 0.3.28；保留 buffer/async protocol v1。
 消费者使用原 `sh build.sh` 锁定 Cargo 依赖构建；CI 复用该入口并去掉重复复制，
 原符号审计、完整 strict、全部定义及 server 入口、公开命名空间与真实 HTTP 集成门禁保持。
 不添加返回强转、兼容代码、校验脚本、预算或编译器改写。正式支持以本次精确提交的 CI 为准。
