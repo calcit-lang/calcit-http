@@ -28,8 +28,7 @@
             ffi:task $ &call-dylib-edn-fn (get-dylib-path |/dylibs/libcalcit_http) |serve_http options $ fn (request response!)
               let
                   response $ ffi:response response!
-                response.resolve! $ f $ decode-map-as request
-                  quote $ Map Tag Dynamic
+                response.resolve! $ f $ decode-map-as request (Map Tag Dynamic)
           :examples $ [] $ quote
             serve-http!
               {} (:port 4000) (:host |0.0.0.0)
