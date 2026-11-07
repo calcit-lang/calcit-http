@@ -5,6 +5,7 @@ set -euo pipefail
 smoke_dir="$(mktemp -d)"
 smoke_log="$smoke_dir/calcit-http-server.log"
 server_pid=""
+port=18081
 
 cleanup() {
   if [[ -n "$server_pid" ]] && kill -0 "$server_pid" 2>/dev/null; then
@@ -15,7 +16,23 @@ cleanup() {
 }
 trap cleanup EXIT
 
-calcit calcit.cirru eval --dep ./ -- 'ns app.main $ :require
+if [[ "${1:-}" == default ]]; then
+  port=4000
+  program='ns app.main $ :require
+  http.core :refer $ serve-http!
+
+let
+    task-ref $ ref $ assert-type (Option :none) $ Option FfiTask
+    task $ serve-http! (Option :none) $ fn (request)
+      when (= (get request :path) (Option :some |/ffi-stop))
+        .map (deref task-ref) $ fn (server-task)
+          hint-fn $ Fn FfiTask (-> Unit)
+          .cancel-with! server-task :smoke-complete
+      {} (:code 200) (:body |ffi-ok)
+  reset! task-ref $ Option :some task
+  , task'
+else
+  program='ns app.main $ :require
   http.util :refer $ get-dylib-path
 
 let
@@ -30,12 +47,15 @@ let
           hint-fn $ Fn FfiTask (-> Unit)
           .cancel-with! server-task :smoke-complete
   reset! task-ref $ Option :some task
-  , task' >"$smoke_log" 2>&1 &
+  , task'
+fi
+
+calcit calcit.cirru eval --dep ./ -- "$program" >"$smoke_log" 2>&1 &
 server_pid="$!"
 
 response=""
 for _ in {1..50}; do
-  if response="$(curl --noproxy '*' --fail --silent --max-time 1 'http://127.0.0.1:18081/ffi-smoke?x=1')"; then
+  if response="$(curl --noproxy '*' --fail --silent --max-time 1 "http://127.0.0.1:$port/ffi-smoke?x=1")"; then
     break
   fi
   sleep 0.1
@@ -45,6 +65,11 @@ if [[ "$response" != "ffi-ok" ]]; then
   cat "$smoke_log"
   echo "expected server smoke response 'ffi-ok', got '$response'" >&2
   exit 1
+fi
+
+if [[ "${1:-}" == default ]]; then
+  # Cancelling the task can close the connection before this second response.
+  curl --noproxy '*' --silent --max-time 1 "http://127.0.0.1:$port/ffi-stop" >/dev/null || true
 fi
 
 for _ in {1..50}; do

@@ -64,4 +64,6 @@ jobs:
       - run: calcit calcit.cirru
 
       - name: Verify async server response and cancellation
-        run: bash scripts/check-server-ffi.sh
+        run: |
+          bash scripts/check-server-ffi.sh
+          bash scripts/check-server-ffi.sh default
