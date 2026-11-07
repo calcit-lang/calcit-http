@@ -23,11 +23,13 @@ entry_for:
 
 ```cirru.no-check
 def server-task $ http.core/serve-http!
-  {} (:host |0.0.0.0) (:port 4000) (:response-timeout-ms 30000)
+  Option :some $ decode-map-as
+    {} (:host |0.0.0.0) (:port 4000) (:response-timeout-ms 30000)
+    Map Tag http.core/ServerOptionValue
   fn (request)
     {} (:code 200)
-      :headers $ {} (:content-type |application/json)
-      :body |{"ok":true}
+      :headers $ {} $ :content-type |application/json
+      :body |{ ok :true}
 
 server-task.cancel-with! :shutdown
 ```

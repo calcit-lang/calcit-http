@@ -705,6 +705,16 @@ mod tests {
   }
 
   #[test]
+  fn empty_options_map_preserves_nil_defaults() {
+    let from_map = parse_options(&Edn::map_from_iter([])).expect("empty config map");
+    let from_nil = parse_options(&Edn::Nil).expect("nil config");
+
+    assert_eq!(from_map.port, from_nil.port);
+    assert_eq!(from_map.host, from_nil.host);
+    assert_eq!(from_map.response_timeout_ms, from_nil.response_timeout_ms);
+  }
+
+  #[test]
   fn server_options_reject_lossy_numbers() {
     for (key, value) in [
       ("port", -1.0),
