@@ -14,6 +14,10 @@
   :files $ {}
     'http.core $ %{} 'FileEntry
       :defs $ {}
+        'ServerOptionValue $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion ServerOptionValue Number String
+          :examples $ []
+          :schema $ quote UnionDef
         'native-smoke $ %{} 'CodeEntry
           :doc "|Internal native ABI smoke probe used by this module test entry. It loads the HTTP dylib and returns a stable token."
           :code $ quote $ defn native-smoke ()
@@ -23,20 +27,23 @@
           :examples $ []
           :schema $ quote $ Fn (-> String)
         'serve-http! $ %{} 'CodeEntry
-          :doc "|Starts a cancellable native HTTP server through the C-safe async FFI. Params: options (nil or map with :port, :host, and optional :response-timeout-ms), f (request map -> response map). Returns FfiTask; cancel it with .cancel! or .cancel-with!."
+          :doc "|Starts a cancellable native HTTP server. Pass Option :none for defaults or Option :some with a Tag-keyed configuration map. The request and response maps cross the native FFI boundary. Cancel the returned FfiTask with .cancel! or .cancel-with!."
           :code $ quote $ defn serve-http! (options f)
-            ffi:task $ &call-dylib-edn-fn (get-dylib-path |/dylibs/libcalcit_http) |serve_http options $ fn (request response!)
-              let
-                  response $ ffi:response response!
-                response.resolve! $ f $ decode-map-as request (Map Tag Dynamic)
+            ffi:task $ &call-dylib-edn-fn (get-dylib-path |/dylibs/libcalcit_http) |serve_http
+              .unwrap-or options $ {}
+              fn (request response!)
+                let
+                    response $ ffi:response response!
+                  response.resolve! $ f $ decode-map-as request (Map Tag Dynamic)
           :examples $ [] $ quote
             serve-http!
-              {} (:port 4000) (:host |0.0.0.0)
+              Option :some $ {} (:port 4000) (:host |0.0.0.0)
               fn (req)
                 {} (:code 200)
                   :headers $ {} $ :content-type |application/json
                   :body |ok
-          :schema $ quote $ Fn Dynamic
+          :schema $ quote $ Fn
+            Option $ Map Tag http.core/ServerOptionValue
             Fn (Map Tag Dynamic)
               -> $ Map Tag Dynamic
             -> calcit.core/FfiTask
@@ -51,7 +58,7 @@
         'demo-server! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn demo-server! ()
             serve-http!
-              {} $ :port 4000
+              Option :some $ {} $ :port 4000
               fn (req) (on-request req)
           :examples $ []
           :schema $ quote $ Fn (-> calcit.core/FfiTask)

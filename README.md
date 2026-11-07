@@ -2,9 +2,7 @@
 
 > Rust HTTP library for Calcit runtime.
 
-使用者注意：候选模块 **0.3.30** 配对正式 Calcit **0.35.1**，仅运行 native，没有 npm runtime 或 JS/WASM 支持承诺。消费者须同步工具链并重新构建目标架构动态库，重启原生进程；使用0.32.1的消费者可保留正式0.3.27，使用0.32.0的消费者可保留正式0.3.26，旧tag不移动。发布状态以正式 Git tag 为准。
-
-本轮仅更新工具链/候选模块声明和说明，通过官方 formatter 规范请求解码的类型写法，保留原有定义和元数据。Rust、Cargo依赖/lock及原HTTP smoke脚本保持。请求响应、Option/FfiTask与取消合同不变，原全部门禁保持。
+使用者注意：候选模块 **0.4.0** 配对 Calcit **0.37.0**。调用 `serve-http!` 时，用 `Option :none` 选择原来的默认值，或用 `Option :some` 包装配置 Map。`:port`、`:host` 和 `:response-timeout-ms` 保持原来的含义。升级时须重新构建目标架构动态库并重启原生进程。使用 Calcit 0.35.1 的项目可继续锁定 **0.3.30**。
 
 旧 CLI 消费者应保留原 tag。CLI 兼容性注意：0.32.0 的 native `identical?` 对容器改为身份比较，比较内容应使用 `=`；本模块没有该调用，不机械改写 HTTP 行为。
 
@@ -16,7 +14,7 @@ APIs:
 
 ```cirru.no-run
 http.core/serve-http!
-  {} (:port 4000) (:host |0.0.0.0) (:response-timeout-ms 30000)
+  Option :some $ {} (:port 4000) (:host |0.0.0.0) (:response-timeout-ms 30000)
   fn (req)
     {} (:code 200)
       :headers $ {} $ :content-type |application/json
@@ -56,7 +54,7 @@ HTTP request `emit` 在等待 host queue 时会检查 server cancel，最长 10m
 持续 `QUEUE_FULL` 默认 5 秒后失败。取消或失败后的 terminal 事件仍独立发布，
 由 host exactly-once reject/release 已打开的 response capabilities。
 
-本模块要求 deps.cirru 声明的精确 Calcit `0.35.1`；取消时会清理已排队的 request
+本模块要求 deps.cirru 声明的精确 Calcit `0.37.0`；取消时会清理已排队的 request
 事件，同时保留 server terminal 事件。
 
 HTTP request `emit` observes server cancellation while waiting for host queue
@@ -64,15 +62,11 @@ capacity, with at most 10ms between checks; persistent `QUEUE_FULL` fails after
 the default five-second deadline. Terminal publication remains independent so
 the host can reject and release opened response capabilities exactly once.
 
-This module requires the exact Calcit `0.35.1` declared in deps.cirru.
+This module requires the exact Calcit `0.37.0` declared in deps.cirru.
 Cancellation purges queued request events without discarding the server's
 terminal event. The native ABI and request/response wire format remain unchanged.
 
-本轮对齐正式 Calcit 0.35.1，候选模块 0.3.30；保留 buffer/async protocol v1。
-消费者使用原 `sh build.sh` 锁定 Cargo 依赖构建；CI 复用该入口并去掉重复复制，
-原符号审计、完整 strict、全部定义及 server 入口、公开命名空间与真实 HTTP 集成门禁保持。
-不添加返回强转、兼容代码、校验脚本、预算或编译器改写。正式支持以本次精确提交的 CI 为准。
-Cargo crate 保持 0.3.23，不发布 crates.io 包。
+`ServerOptionValue` 用 `Number | String` 描述配置项。原生层继续检查端口、超时范围及主机字段。请求与响应继续以开放 Map 经过 C-safe buffer/async protocol v1。Cargo crate 保持 0.3.23。
 
 Declare `calcit-lang/calcit-http` with a compatible published tag in your
 project's `deps.cirru` dependencies, then run `caps --ci`. The project-local
