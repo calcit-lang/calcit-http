@@ -37,7 +37,9 @@
                   response.resolve! $ f $ decode-map-as request (Map Tag Dynamic)
           :examples $ [] $ quote
             serve-http!
-              Option :some $ {} (:port 4000) (:host |0.0.0.0)
+              Option :some $ decode-map-as
+                {} (:port 4000) (:host |0.0.0.0) (:response-timeout-ms 30000)
+                Map Tag http.core/ServerOptionValue
               fn (req)
                 {} (:code 200)
                   :headers $ {} $ :content-type |application/json
@@ -58,7 +60,9 @@
         'demo-server! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn demo-server! ()
             serve-http!
-              Option :some $ {} $ :port 4000
+              Option :some $ decode-map-as
+                {} (:port 4000) (:host |0.0.0.0) (:response-timeout-ms 30000)
+                Map Tag http.core/ServerOptionValue
               fn (req) (on-request req)
           :examples $ []
           :schema $ quote $ Fn (-> calcit.core/FfiTask)

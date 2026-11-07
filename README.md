@@ -2,7 +2,7 @@
 
 > Rust HTTP library for Calcit runtime.
 
-使用者注意：候选模块 **0.4.0** 配对 Calcit **0.37.0**。调用 `serve-http!` 时，用 `Option :none` 选择原来的默认值，或用 `Option :some` 包装配置 Map。`:port`、`:host` 和 `:response-timeout-ms` 保持原来的含义。升级时须重新构建目标架构动态库并重启原生进程。使用 Calcit 0.35.1 的项目可继续锁定 **0.3.30**。
+使用者注意：候选模块 **0.4.0** 配对 Calcit **0.37.0**。调用 `serve-http!` 时，用 `Option :none` 选择原来的默认值，或用 `Option :some` 包装配置 Map。混合数字与字符串的 Map 可按下面示例先验证其 union 类型。`:port`、`:host` 和 `:response-timeout-ms` 保持原来的含义。升级时须重新构建目标架构动态库并重启原生进程。使用 Calcit 0.35.1 的项目可继续锁定 **0.3.30**。
 
 旧 CLI 消费者应保留原 tag。CLI 兼容性注意：0.32.0 的 native `identical?` 对容器改为身份比较，比较内容应使用 `=`；本模块没有该调用，不机械改写 HTTP 行为。
 
@@ -14,7 +14,9 @@ APIs:
 
 ```cirru.no-run
 http.core/serve-http!
-  Option :some $ {} (:port 4000) (:host |0.0.0.0) (:response-timeout-ms 30000)
+  Option :some $ decode-map-as
+    {} (:port 4000) (:host |0.0.0.0) (:response-timeout-ms 30000)
+    Map Tag http.core/ServerOptionValue
   fn (req)
     {} (:code 200)
       :headers $ {} $ :content-type |application/json
