@@ -37,6 +37,11 @@
             :body String
           :examples $ []
           :schema $ quote StructDef
+        'ResponseWireValue $ %{} 'CodeEntry
+          :doc "|Values emitted to the native binding by the typed response adapter."
+          :code $ quote $ defunion ResponseWireValue Number String (Map http.core/HeaderName String)
+          :examples $ []
+          :schema $ quote UnionDef
         'ServerOptionValue $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defunion ServerOptionValue Number String
           :examples $ []
@@ -82,21 +87,24 @@
           :schema $ quote $ Fn
             Option $ Map Tag http.core/ServerOptionValue
             Fn (Map Tag Dynamic)
-              -> $ Map Tag Dynamic
+              -> $ Map Tag V
             -> calcit.core/FfiTask
+            :generics V
             :features :js-ffi
         'serve-http-typed! $ %{} 'CodeEntry
           :doc "|Serve checked Request values and send Response values with the same native ABI and cancellation semantics as serve-http!."
           :code $ quote $ defn serve-http-typed! (options handler)
             serve-http! options $ fn (raw)
               hint-fn $ Fn (Map Tag Dynamic)
-                -> $ Map Tag Dynamic
+                -> $ Map Tag http.core/ResponseWireValue
               let
                   response $ handler $ decode-request raw
-                {}
-                  :code $ :code response
-                  :headers $ :headers response
-                  :body $ :body response
+                assert-type
+                  {}
+                    :code $ :code response
+                    :headers $ :headers response
+                    :body $ :body response
+                  Map Tag http.core/ResponseWireValue
           :examples $ []
           :schema $ quote $ Fn
             Option $ Map Tag http.core/ServerOptionValue
