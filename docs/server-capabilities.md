@@ -13,6 +13,7 @@ aliases:
   - "serve-http"
 entry_for:
   - "http.core/serve-http!"
+  - "http.core/serve-http-typed!"
   - "response-timeout-ms"
   - "FfiResponse"
 ---
@@ -37,6 +38,19 @@ server-task.cancel-with! :shutdown
 ## Request and response contract
 
 Requests expose method, URL/path, query, headers, and body fields. Responses use numeric `:code`, string-valued `:headers`, and a string `:body`. Validate external input before passing it into typed business logic.
+
+## Typed requests and responses
+
+`http.core/serve-http-typed!` accepts the same optional configuration and returns the same cancellable `FfiTask` as `serve-http!`. Its callback receives an `http.core/Request` and returns an `http.core/Response`.
+
+The request body, body length, and remote address are `Option` fields. Response header names can be Tag or String, and values must be String. The response is encoded to the existing native response map.
+
+```cirru.no-run
+http.core/serve-http-typed! (Option :none)
+  fn (request)
+    hint-fn $ Fn http.core/Request $ -> http.core/Response
+    http.core/Response :code 200 :headers ({}) :body $ :path request
+```
 
 ## Lifecycle rules
 
