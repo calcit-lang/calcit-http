@@ -30,12 +30,15 @@ The callback should return a response map with:
 - `:body` - response body string
 
 具名接口的请求正文、长度和远端地址使用 `Option`。响应头值是 String，键可使用 Tag 或 String。
+在服务运行期间保留 `typed-server-task`，并在应用的关闭回调中调用示例末尾的取消操作。
 
 ```cirru.no-run
-http.core/serve-http-typed! (Option :none)
-  fn (request)
-    hint-fn $ Fn http.core/Request $ -> http.core/Response
-    http.core/Response :code 200 :headers ({}) :body $ :path request
+let
+    typed-server-task $ http.core/serve-http-typed! (Option :none)
+      fn (request)
+        hint-fn $ Fn http.core/Request $ -> http.core/Response
+        http.core/Response :code 200 :headers ({}) :body $ :path request
+  typed-server-task.cancel-with! :shutdown
 ```
 
 `serve-http!` returns a typed `FfiTask`. Stop the server with `.cancel!` or

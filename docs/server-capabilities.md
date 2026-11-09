@@ -45,11 +45,15 @@ Requests expose method, URL/path, query, headers, and body fields. Responses use
 
 The request body, body length, and remote address are `Option` fields. Response header names can be Tag or String, and values must be String. The response is encoded to the existing native response map.
 
+Keep `typed-server-task` for the lifetime of the server. Put the cancellation call shown below in the application's shutdown handler.
+
 ```cirru.no-run
-http.core/serve-http-typed! (Option :none)
-  fn (request)
-    hint-fn $ Fn http.core/Request $ -> http.core/Response
-    http.core/Response :code 200 :headers ({}) :body $ :path request
+let
+    typed-server-task $ http.core/serve-http-typed! (Option :none)
+      fn (request)
+        hint-fn $ Fn http.core/Request $ -> http.core/Response
+        http.core/Response :code 200 :headers ({}) :body $ :path request
+  typed-server-task.cancel-with! :shutdown
 ```
 
 ## Lifecycle rules
