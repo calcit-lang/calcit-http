@@ -67,3 +67,4 @@ jobs:
         run: |
           bash scripts/check-server-ffi.sh
           bash scripts/check-server-ffi.sh default
+          bash scripts/check-server-ffi.sh typed

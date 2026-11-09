@@ -14,10 +14,45 @@
   :files $ {}
     'http.core $ %{} 'FileEntry
       :defs $ {}
+        'HeaderName $ %{} 'CodeEntry
+          :doc "|Response header names accepted by the native binding."
+          :code $ quote $ defunion HeaderName Tag String
+          :examples $ []
+          :schema $ quote UnionDef
+        'Request $ %{} 'CodeEntry
+          :doc "|Checked request fields produced by the native HTTP binding."
+          :code $ quote $ defstruct Request (:method Tag) (:url String) (:path String) (:querystring String)
+            :query $ Map Tag String
+            :headers $ Map Tag String
+            :secure Bool
+            :body-length $ Option Number
+            :remote-addr $ Option String
+            :body $ Option String
+          :examples $ []
+          :schema $ quote StructDef
+        'Response $ %{} 'CodeEntry
+          :doc "|A typed response encoded to the existing native response map."
+          :code $ quote $ defstruct Response (:code Number)
+            :headers $ Map http.core/HeaderName String
+            :body String
+          :examples $ []
+          :schema $ quote StructDef
         'ServerOptionValue $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defunion ServerOptionValue Number String
           :examples $ []
           :schema $ quote UnionDef
+        'decode-request $ %{} 'CodeEntry
+          :doc "|Normalize nullable native fields before the checked request conversion."
+          :code $ quote $ defn decode-request (raw)
+            let
+                length $ option:and-then (get raw :body-length) nil->option
+                address $ option:and-then (get raw :remote-addr) nil->option
+                normalized $ if (.none? length) (dissoc raw :body-length) raw
+              decode-map-as
+                if (.none? address) (dissoc normalized :remote-addr) normalized
+                , http.core/Request
+          :examples $ []
+          :schema $ quote $ Fn (Map Tag Dynamic) (-> http.core/Request)
         'native-smoke $ %{} 'CodeEntry
           :doc "|Internal native ABI smoke probe used by this module test entry. It loads the HTTP dylib and returns a stable token."
           :code $ quote $ defn native-smoke ()
@@ -49,6 +84,24 @@
             Fn (Map Tag Dynamic)
               -> $ Map Tag Dynamic
             -> calcit.core/FfiTask
+            :features :js-ffi
+        'serve-http-typed! $ %{} 'CodeEntry
+          :doc "|Serve checked Request values and send Response values with the same native ABI and cancellation semantics as serve-http!."
+          :code $ quote $ defn serve-http-typed! (options handler)
+            serve-http! options $ fn (raw)
+              hint-fn $ Fn (Map Tag Dynamic)
+                -> $ Map Tag Dynamic
+              let
+                  response $ handler $ decode-request raw
+                {}
+                  :code $ :code response
+                  :headers $ :headers response
+                  :body $ :body response
+          :examples $ []
+          :schema $ quote $ Fn
+            Option $ Map Tag http.core/ServerOptionValue
+            Fn http.core/Request $ -> http.core/Response
+            -> FfiTask
             :features :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns http.core

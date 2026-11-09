@@ -2,7 +2,7 @@
 
 > Rust HTTP library for Calcit runtime.
 
-使用者注意：候选模块 **0.4.0** 配对 Calcit **0.37.0**。调用 `serve-http!` 时，用 `Option :none` 选择原来的默认值，或用 `Option :some` 包装配置 Map。混合数字与字符串的 Map 可按下面示例先验证其 union 类型。`:port`、`:host` 和 `:response-timeout-ms` 保持原来的含义。升级时须重新构建目标架构动态库并重启原生进程。使用 Calcit 0.35.1 的项目可继续锁定 **0.3.30**。
+使用者注意：当前源码配对 Calcit **0.38.0**。需要具名请求和响应时可使用 `serve-http-typed!`。已有的 `serve-http!` Map 回调仍可直接使用。两者都用 `Option :none` 选择默认配置，或用 `Option :some` 包装配置 Map。升级时须重新构建目标架构动态库并重启原生进程。使用 Calcit 0.37.0 的项目可继续锁定 **0.4.0**。
 
 旧 CLI 消费者应保留原 tag。CLI 兼容性注意：0.32.0 的 native `identical?` 对容器改为身份比较，比较内容应使用 `=`；本模块没有该调用，不机械改写 HTTP 行为。
 
@@ -28,6 +28,18 @@ The callback should return a response map with:
 - `:code` - numeric HTTP status, default `200`
 - `:headers` - map of header name to string value
 - `:body` - response body string
+
+具名接口的请求正文、长度和远端地址使用 `Option`。响应头值是 String，键可使用 Tag 或 String。
+在服务运行期间保留 `typed-server-task`，并在应用的关闭回调中调用示例末尾的取消操作。
+
+```cirru.no-run
+let
+    typed-server-task $ http.core/serve-http-typed! (Option :none)
+      fn (request)
+        hint-fn $ Fn http.core/Request $ -> http.core/Response
+        http.core/Response :code 200 :headers ({}) :body $ :path request
+  typed-server-task.cancel-with! :shutdown
+```
 
 `serve-http!` returns a typed `FfiTask`. Stop the server with `.cancel!` or
 `.cancel-with!`; cancellation is acknowledged only after the native server
@@ -56,7 +68,7 @@ HTTP request `emit` 在等待 host queue 时会检查 server cancel，最长 10m
 持续 `QUEUE_FULL` 默认 5 秒后失败。取消或失败后的 terminal 事件仍独立发布，
 由 host exactly-once reject/release 已打开的 response capabilities。
 
-本模块要求 deps.cirru 声明的精确 Calcit `0.37.0`；取消时会清理已排队的 request
+本模块要求 deps.cirru 声明的精确 Calcit `0.38.0`；取消时会清理已排队的 request
 事件，同时保留 server terminal 事件。
 
 HTTP request `emit` observes server cancellation while waiting for host queue
@@ -64,7 +76,7 @@ capacity, with at most 10ms between checks; persistent `QUEUE_FULL` fails after
 the default five-second deadline. Terminal publication remains independent so
 the host can reject and release opened response capabilities exactly once.
 
-This module requires the exact Calcit `0.37.0` declared in deps.cirru.
+This module requires the exact Calcit `0.38.0` declared in deps.cirru.
 Cancellation purges queued request events without discarding the server's
 terminal event. The native ABI and request/response wire format remain unchanged.
 
@@ -78,14 +90,13 @@ the matching `*.{dylib,so,dll}` file with `./build.sh`.
 ### Quality and runtime contracts
 
 CI runs default strict checks for both native entries and all public
-namespaces. The callback takes and returns `Map<Tag,Dynamic>`; raw native
-requests are decoded before entering the handler. Heterogeneous HTTP fields
-and the Rust-validated options remain explicit boundaries, not whole-Dynamic
-callback contracts. Calcit is installed from the project's `deps.cirru` through
+namespaces. The typed callback receives `Request` and returns `Response`.
+The existing Map callback continues to accept heterogeneous response fields.
+Calcit is installed from the project's `deps.cirru` through
 [`calcit-lang/setup-calcit@v1.5.0`](https://github.com/calcit-lang/setup-calcit).
 
-原生请求在长度或远端地址不可用时携带 nil；响应 body 和 header 值保留 Rust 的文本转换。
-这些真实边界不能直接用有限 union 替代，否则会收紧现有接受合同。
+原生请求在长度或远端地址不可用时携带 nil，具名接口将其解码为 `Option :none`。
+原 Map 回调的响应 body 和 header 值继续使用 Rust 的文本转换。
 
 CI also builds the Rust dylib, copies the actual artifact into `dylibs/`, and
 executes the Calcit entry that loads it. Strict checks do not replace this
