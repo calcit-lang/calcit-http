@@ -50,14 +50,14 @@
           :doc "|Normalize nullable native fields before the checked request conversion."
           :code $ quote $ defn decode-request (raw)
             let
-                length $ option:and-then (get raw :body-length) nil->option
-                address $ option:and-then (get raw :remote-addr) nil->option
+                length $ .and-then (get raw :body-length) nil->option
+                address $ .and-then (get raw :remote-addr) nil->option
                 normalized $ if (.none? length) (dissoc raw :body-length) raw
               decode-map-as
                 if (.none? address) (dissoc normalized :remote-addr) normalized
                 , http.core/Request
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (-> http.core/Request)
+          :schema $ quote $ Fn (Map Tag Dynamic) (-> Request)
         'native-smoke $ %{} 'CodeEntry
           :doc "|Internal native ABI smoke probe used by this module test entry. It loads the HTTP dylib and returns a stable token."
           :code $ quote $ defn native-smoke ()
@@ -77,7 +77,7 @@
                   response.resolve! $ f $ decode-map-as request (Map Tag Dynamic)
           :examples $ [] $ quote
             serve-http!
-              Option :some $ decode-map-as
+              Some $ decode-map-as
                 {} (:port 4000) (:host |0.0.0.0) (:response-timeout-ms 30000)
                 Map Tag http.core/ServerOptionValue
               fn (req)
@@ -85,10 +85,10 @@
                   :headers $ {} $ :content-type |application/json
                   :body |ok
           :schema $ quote $ Fn
-            Option $ Map Tag http.core/ServerOptionValue
+            Option $ Map Tag ServerOptionValue
             Fn (Map Tag Dynamic)
               -> $ Map Tag V
-            -> calcit.core/FfiTask
+            -> FfiTask
             :generics V
             :features :js-ffi
         'serve-http-typed! $ %{} 'CodeEntry
@@ -107,8 +107,8 @@
                   Map Tag http.core/ResponseWireValue
           :examples $ []
           :schema $ quote $ Fn
-            Option $ Map Tag http.core/ServerOptionValue
-            Fn http.core/Request $ -> http.core/Response
+            Option $ Map Tag ServerOptionValue
+            Fn Request $ -> Response
             -> FfiTask
             :features :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
@@ -121,12 +121,12 @@
         'demo-server! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn demo-server! ()
             serve-http!
-              Option :some $ decode-map-as
+              Some $ decode-map-as
                 {} (:port 4000) (:host |0.0.0.0) (:response-timeout-ms 30000)
                 Map Tag http.core/ServerOptionValue
               fn (req) (on-request req)
           :examples $ []
-          :schema $ quote $ Fn (-> calcit.core/FfiTask)
+          :schema $ quote $ Fn (-> FfiTask)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (run-tests)
           :examples $ []
