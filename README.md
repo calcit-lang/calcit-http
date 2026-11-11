@@ -2,7 +2,7 @@
 
 > Rust HTTP library for Calcit runtime.
 
-使用者注意：当前源码配对 Calcit **0.41.0**。需要具名请求和响应时可使用 `serve-http-typed!`。已有的 `serve-http!` Map 回调仍可直接使用，回调可以保留自己声明的响应值类型。两者都用 `Option :none` 选择默认配置，或用 `Option :some` 包装配置 Map。升级时须重新构建目标架构动态库并重启原生进程。使用 Calcit 0.37.0 的项目可继续锁定 **0.4.0**。
+使用者注意：当前源码配对 Calcit **0.41.1**。需要具名请求和响应时可使用 `serve-http-typed!`。已有的 `serve-http!` Map 回调仍可直接使用，回调可以保留自己声明的响应值类型。两者都用 `Option :none` 选择默认配置，或用 `Option :some` 包装配置 Map。升级时须重新构建目标架构动态库并重启原生进程。使用 Calcit 0.37.0 的项目可继续锁定 **0.4.0**。
 
 旧 CLI 消费者应保留原 tag。CLI 兼容性注意：0.32.0 的 native `identical?` 对容器改为身份比较，比较内容应使用 `=`；本模块没有该调用，不机械改写 HTTP 行为。
 
@@ -68,7 +68,7 @@ HTTP request `emit` 在等待 host queue 时会检查 server cancel，最长 10m
 持续 `QUEUE_FULL` 默认 5 秒后失败。取消或失败后的 terminal 事件仍独立发布，
 由 host exactly-once reject/release 已打开的 response capabilities。
 
-本模块要求 deps.cirru 声明的精确 Calcit `0.41.0`；取消时会清理已排队的 request
+本模块要求 deps.cirru 声明的精确 Calcit `0.41.1`；取消时会清理已排队的 request
 事件，同时保留 server terminal 事件。
 
 HTTP request `emit` observes server cancellation while waiting for host queue
@@ -76,7 +76,7 @@ capacity, with at most 10ms between checks; persistent `QUEUE_FULL` fails after
 the default five-second deadline. Terminal publication remains independent so
 the host can reject and release opened response capabilities exactly once.
 
-This module requires the exact Calcit `0.41.0` declared in deps.cirru.
+This module requires the exact Calcit `0.41.1` declared in deps.cirru.
 Cancellation purges queued request events without discarding the server's
 terminal event. The native ABI and request/response wire format remain unchanged.
 

@@ -96,7 +96,7 @@
           :code $ quote $ defn serve-http-typed! (options handler)
             serve-http! options $ fn (raw)
               hint-fn $ Fn (Map Tag Dynamic)
-                -> $ Map Tag http.core/ResponseWireValue
+                -> $ Map Tag ResponseWireValue
               let
                   response $ handler $ decode-request raw
                 assert-type
@@ -104,7 +104,7 @@
                     :code $ :code response
                     :headers $ :headers response
                     :body $ :body response
-                  Map Tag http.core/ResponseWireValue
+                  Map Tag ResponseWireValue
           :examples $ []
           :schema $ quote $ Fn
             Option $ Map Tag ServerOptionValue
@@ -145,7 +145,7 @@
               {} (:status :ok) (:code 200)
                 :headers $ {} $ :content-type |application/json
                 :body $ format-cirru-edn req
-              Map Tag http.test/EchoResponseValue
+              Map Tag EchoResponseValue
           :examples $ []
           :schema $ quote $ Fn (Map Tag V)
             -> $ Map Tag EchoResponseValue
