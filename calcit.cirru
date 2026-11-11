@@ -57,7 +57,7 @@
                 if (.none? address) (dissoc normalized :remote-addr) normalized
                 , http.core/Request
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (-> Request)
+          :schema $ quote $ Fn (Map Tag V) (-> Request) (:generics V)
         'native-smoke $ %{} 'CodeEntry
           :doc "|Internal native ABI smoke probe used by this module test entry. It loads the HTTP dylib and returns a stable token."
           :code $ quote $ defn native-smoke ()
@@ -118,6 +118,10 @@
             http.util :refer $ get-dylib-path
     'http.test $ %{} 'FileEntry
       :defs $ {}
+        'EchoResponseValue $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion EchoResponseValue Tag Number String (Map Tag String)
+          :examples $ []
+          :schema $ quote UnionDef
         'demo-server! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn demo-server! ()
             serve-http!
@@ -137,12 +141,15 @@
           :schema $ quote $ Fn (-> Unit)
         'on-request $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn on-request (req) (; println "|Handling request:" req) (; mid-call)
-            {} (:status :ok) (:code 200)
-              :headers $ {} $ :content-type |application/json
-              :body $ format-cirru-edn req
+            assert-type
+              {} (:status :ok) (:code 200)
+                :headers $ {} $ :content-type |application/json
+                :body $ format-cirru-edn req
+              Map Tag http.test/EchoResponseValue
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic)
-            -> $ Map Tag Dynamic
+          :schema $ quote $ Fn (Map Tag V)
+            -> $ Map Tag EchoResponseValue
+            :generics V
             :features :js-ffi
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! () (println |Reload) &unit
