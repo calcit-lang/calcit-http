@@ -134,11 +134,11 @@
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (run-tests)
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io)
         'mid-call $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn mid-call () (println "|Calling internal function") &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io)
         'on-request $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn on-request (req) (; println "|Handling request:" req) (; mid-call)
             assert-type
@@ -154,14 +154,14 @@
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! () (println |Reload) &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io)
         'run-tests $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn run-tests () (println "|%%%% test for lib") (println calcit-filename calcit-dirname)
             assert |native-smoke-must-match $ = |calcit-http-native-ok $ native-smoke
             println "|No tests..."
             , &unit
           :examples $ []
-          :schema $ quote $ Fn (-> Unit)
+          :schema $ quote $ Fn (-> Unit) (:features :io)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns http.test
           :require
