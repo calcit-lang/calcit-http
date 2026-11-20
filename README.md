@@ -4,6 +4,8 @@
 
 使用者注意：当前源码配对 Calcit **0.44.0**。需要具名请求和响应时可使用 `serve-http-typed!`。已有的 `serve-http!` Map 回调仍可直接使用，回调可以保留自己声明的响应值类型。两者都用 `Option :none` 选择默认配置，或用 `Option :some` 包装配置 Map。升级时须重新构建目标架构动态库并重启原生进程。使用 Calcit 0.37.0 的项目可继续锁定 **0.4.0**。
 
+Calcit 0.44.0 对应模块版本 **0.4.2**；Calcit 0.41.0 用户继续使用 **0.4.1**。
+
 旧 CLI 消费者应保留原 tag。CLI 兼容性注意：0.32.0 的 native `identical?` 对容器改为身份比较，比较内容应使用 `=`；本模块没有该调用，不机械改写 HTTP 行为。
 
 The native server passes a request map into your callback and expects a response map back. Typical request keys include `:method`, `:url`, `:path`, `:querystring`, `:query`, `:headers`, and `:body` for non-GET requests.
