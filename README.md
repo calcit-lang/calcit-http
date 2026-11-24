@@ -2,7 +2,7 @@
 
 > Rust HTTP library for Calcit runtime.
 
-使用者注意：当前源码配对 Calcit **0.44.0**。需要具名请求和响应时可使用 `serve-http-typed!`。已有的 `serve-http!` Map 回调仍可直接使用，回调可以保留自己声明的响应值类型。两者都用 `Option :none` 选择默认配置，或用 `Option :some` 包装配置 Map。升级时须重新构建目标架构动态库并重启原生进程。使用 Calcit 0.37.0 的项目可继续锁定 **0.4.0**。
+使用者注意：当前源码配对 Calcit **0.45.0**。需要具名请求和响应时可使用 `serve-http-typed!`。已有的 `serve-http!` Map 回调仍可直接使用，回调可以保留自己声明的响应值类型。两者都用 `Option :none` 选择默认配置，或用 `Option :some` 包装配置 Map。升级时须重新构建目标架构动态库并重启原生进程。使用 Calcit 0.37.0 的项目可继续锁定 **0.4.0**。
 
 Calcit 0.44.0 对应模块版本 **0.4.2**；Calcit 0.41.0 用户继续使用 **0.4.1**。
 
@@ -70,7 +70,7 @@ HTTP request `emit` 在等待 host queue 时会检查 server cancel，最长 10m
 持续 `QUEUE_FULL` 默认 5 秒后失败。取消或失败后的 terminal 事件仍独立发布，
 由 host exactly-once reject/release 已打开的 response capabilities。
 
-本模块要求 deps.cirru 声明的精确 Calcit `0.44.0`；取消时会清理已排队的 request
+本模块要求 deps.cirru 声明的精确 Calcit `0.45.0`；取消时会清理已排队的 request
 事件，同时保留 server terminal 事件。
 
 HTTP request `emit` observes server cancellation while waiting for host queue
@@ -78,7 +78,7 @@ capacity, with at most 10ms between checks; persistent `QUEUE_FULL` fails after
 the default five-second deadline. Terminal publication remains independent so
 the host can reject and release opened response capabilities exactly once.
 
-This module requires the exact Calcit `0.44.0` declared in deps.cirru.
+This module requires the exact Calcit `0.45.0` declared in deps.cirru.
 Cancellation purges queued request events without discarding the server's
 terminal event. The native ABI and request/response wire format remain unchanged.
 
@@ -95,7 +95,7 @@ CI runs default strict checks for both native entries and all public
 namespaces. The typed callback receives `Request` and returns `Response`.
 The existing Map callback continues to accept heterogeneous response fields.
 Calcit is installed from the project's `deps.cirru` through
-[`calcit-lang/setup-calcit@v1.5.0`](https://github.com/calcit-lang/setup-calcit).
+[`calcit-lang/setup-calcit@v1.5.2`](https://github.com/calcit-lang/setup-calcit).
 
 原生请求在长度或远端地址不可用时携带 nil，具名接口将其解码为 `Option :none`。
 原 Map 回调的响应 body 和 header 值继续使用 Rust 的文本转换。
