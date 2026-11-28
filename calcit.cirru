@@ -63,7 +63,12 @@
           :code $ quote $ defn native-smoke ()
             let
                 value $ &call-dylib-edn (get-dylib-path |/dylibs/libcalcit_http) |smoke_ping
-              if (string? value) value $ raise "|HTTP native smoke expected a String"
+              match (edn:from-dynamic value)
+                (:ok edn)
+                  match edn
+                    (:string text) text
+                    _ $ raise "|HTTP native smoke expected a String"
+                _ $ raise "|HTTP native smoke expected a String"
           :examples $ []
           :schema $ quote $ Fn (-> String)
         'serve-http! $ %{} 'CodeEntry
