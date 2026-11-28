@@ -78,7 +78,7 @@ capacity, with at most 10ms between checks; persistent `QUEUE_FULL` fails after
 the default five-second deadline. Terminal publication remains independent so
 the host can reject and release opened response capabilities exactly once.
 
-This module requires the exact Calcit `0.46.0` declared in deps.cirru.
+This module requires the exact Calcit `0.49.0` declared in deps.cirru.
 Cancellation purges queued request events without discarding the server's
 terminal event. The native ABI and request/response wire format remain unchanged.
 
